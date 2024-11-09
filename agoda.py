@@ -20,7 +20,7 @@ engine = create_engine(DATABASE_URL)
 
 
 
-gtrs_api_key = os.getenv("GTS_API_KEY")
+gtrs_api_key = os.getenv("AGODA_API_KEY")
 
 
 def get_xml_to_json_data_for_agoda(api_key, hotel_id):
