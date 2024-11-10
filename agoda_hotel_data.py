@@ -5,6 +5,9 @@ from dotenv import load_dotenv
 import os
 from sqlalchemy import create_engine
 import pandas as pd
+from datetime import datetime
+
+
 
 load_dotenv()
 
@@ -42,8 +45,15 @@ def get_xml_to_json_data_for_agoda(api_key, hotel_id):
         if not hotel_data.get("hotel_id"):
             print(f"Skipping hotel {hotel_id} as 'hotel_id' is not found.")
             return None
-        
+        createdAt = datetime.now()
+        createdAt_str = createdAt.strftime("%Y-%m-%dT%H:%M:%S")
+        created_at_dt = datetime.strptime(createdAt_str, "%Y-%m-%dT%H:%M:%S")
+        timeStamp = int(created_at_dt.timestamp())
+
+
         specific_data = {
+            "created": createdAt_str,
+            "timestamp": timeStamp,
             "hotel_id": hotel_data["hotel_id"],
             "name": hotel_data.get("hotel_name", "NULL"),
             "name_local": hotel_data.get("translated_name", "NULL"),
@@ -254,6 +264,8 @@ table = "vervotech_mapping"
 providerFamily = "Agoda"
 ids = get_vervotech_id(engine=engine, table=table, providerFamily=providerFamily)
 
+folder_name = './HotelInfo/Agoda'
+
 for id in ids:
     try:
         hotel_id = int(id)  
@@ -262,7 +274,7 @@ for id in ids:
         if data is None:
             continue  
 
-        save_json_to_folder(data=data, hotel_id=hotel_id, folder_name=providerFamily)
+        save_json_to_folder(data=data, hotel_id=hotel_id, folder_name=folder_name)
         print(f"Completed creating JSON file for hotel {hotel_id}")
 
     except ValueError:
