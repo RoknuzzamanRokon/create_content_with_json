@@ -50,6 +50,17 @@ def get_xml_to_json_data_for_agoda(api_key, hotel_id):
         created_at_dt = datetime.strptime(createdAt_str, "%Y-%m-%dT%H:%M:%S")
         timeStamp = int(created_at_dt.timestamp())
 
+        # Genarate data for google links.
+        address_line_1 = hotel_feed_full.get("addresses", {}).get("address", [{}])[0].get("address_line_1", "NULL")
+        address_line_2 = hotel_feed_full.get("addresses", {}).get("address", [{}])[0].get("address_line_2", "NULL")
+        hotel_name = hotel_data.get("hotel_name", "NULL")
+        city = hotel_feed_full.get("addresses", {}).get("address", [{}])[0].get("city", "NULL")
+        postal_code = hotel_feed_full.get("addresses", {}).get("address", [{}])[0].get("postal_code", "NULL")
+        country = hotel_feed_full.get("addresses", {}).get("address", [{}])[0].get("country", "NULL")
+
+        address_query = f"{address_line_1}, {address_line_2}, {hotel_name}, {city}, {postal_code}, {country}"
+        google_map_site_link = f"http://maps.google.com/maps?q={address_query.replace(' ', '+')}" if address_line_1 != "NULL" else "NULL"
+
 
         specific_data = {
             "created": createdAt_str,
@@ -58,6 +69,8 @@ def get_xml_to_json_data_for_agoda(api_key, hotel_id):
             "name": hotel_data.get("hotel_name", "NULL"),
             "name_local": hotel_data.get("translated_name", "NULL"),
             "hotel_formerly_name": hotel_data.get("hotel_formerly_name", "NULL"),
+            "destination_code": "NULL",
+            "country_code": "NULL",
             "brand_text": "NULL",
             "property_type": hotel_data.get("accommodation_type", "NULL"),
             "star_rating": hotel_data.get("star_rating", "NULL"),
@@ -108,8 +121,8 @@ def get_xml_to_json_data_for_agoda(api_key, hotel_id):
                 "country": hotel_feed_full.get("addresses", {}).get("address", [{}])[0].get("country", "NULL"),
                 "country_code": "NULL",
                 "postal_code": hotel_feed_full.get("addresses", {}).get("address", [{}])[0].get("postal_code", "NULL"),
-                "full_address": "NULL",
-                "google_map_site_link": "NULL",
+                "full_address": f"{hotel_feed_full.get("addresses", {}).get("address", [{}])[0].get("address_line_1", "NULL")}, {hotel_feed_full.get("addresses", {}).get("address", [{}])[0].get("address_line_2", "NULL")}",
+                "google_map_site_link": google_map_site_link,
                 "local_lang": {
                     "latitude": hotel_data.get("latitude", "NULL"),
                     "longitude": hotel_data.get("longitude", "NULL"),
@@ -120,12 +133,12 @@ def get_xml_to_json_data_for_agoda(api_key, hotel_id):
                     "country": hotel_feed_full.get("addresses", {}).get("address", [{}])[1].get("country", "NULL"),
                     "country_code": "NULL",
                     "postal_code": hotel_feed_full.get("addresses", {}).get("address", [{}])[1].get("postal_code", "NULL"),
-                    "full_address": "NULL",
-                    "google_map_site_link": "NULL",
+                    "full_address": f"{hotel_feed_full.get("addresses", {}).get("address", [{}])[1].get("address_line_1", "NULL")}, {hotel_feed_full.get("addresses", {}).get("address", [{}])[1].get("address_line_2", "NULL")}",
+                    "google_map_site_link": google_map_site_link,
                 },
                 "mapping": {
                     "continent_id": "NULL",
-                    "country_id": "NULL",
+                    "country_id": hotel_feed_full.get("addresses", {}).get("address", [{}])[1].get("country", "NULL"),
                     "province_id": "NULL",
                     "state_id": "NULL",
                     "city_id": "NULL",
@@ -253,9 +266,9 @@ def save_json_to_folder(data, hotel_id, folder_name):
 
 
 def get_vervotech_id(engine, table, providerFamily):
-    query = f"SELECT VervotechId FROM {table} WHERE ProviderFamily = '{providerFamily}';"
+    query = f"SELECT ProviderHotelId FROM {table} WHERE ProviderFamily = '{providerFamily}';"
     df = pd.read_sql(query, engine)
-    data = df['VervotechId'].tolist()
+    data = df['ProviderHotelId'].tolist()
     return data
 
 

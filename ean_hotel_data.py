@@ -138,15 +138,14 @@ class HotelContentEAN:
 
 
         # Genarate data for google links.
-        address_line_1 = hotel_data.get("address", {}).get("line_1", "NULL"),
-        address_line_2 = hotel_data.get("address", {}).get("line_2", "NULL"),
-        hotel_name = hotel_data.get("name", "NUll"),
-        # city = hotel_data.get("City", "NULL")
-        # postal_code = hotel_data.get("ZipCode", "NULL")
-        # state = hotel_info.get("address", {}).get("stateName", "NULL")
-        # country = hotel_data.get("CountryName", "NULL")
+        address_line_1 = hotel_data.get("address", {}).get("line_1", "NULL")
+        address_line_2 = hotel_data.get("address", {}).get("line_2", "NULL")
+        hotel_name = hotel_data.get("name", "NUll")
+        city = hotel_data.get("address", {}).get("city", "NULL")
+        postal_code = hotel_data.get("address", {}).get("postal_code", "NULL")
+        country = hotel_data.get("address", {}).get("country_code", "NULL")
 
-        address_query = f"{address_line_1}, {address_line_2}, {hotel_name}"
+        address_query = f"{address_line_1}, {address_line_2}, {hotel_name}, {city}, {postal_code}, {country}"
         google_map_site_link = f"http://maps.google.com/maps?q={address_query.replace(' ', '+')}" if address_line_1 != "NULL" else "NULL"
 
 
