@@ -24,15 +24,15 @@ table='vervotech_mapping'
 
 
 class HotelContentEAN:
-    def __init__(self, content_vervotech):
+    def __init__(self, content_expedia):
         load_dotenv()
 
         self.credentials = {
             'api_key': os.getenv('EAN_API_KEY'),
             'api_secret': os.getenv('EAN_API_SECRET'),
-            'base_url': os.getenv('EAN_BASE_UEL')
+            'base_url': os.getenv('EAN_BASE_URL')
         }
-        self.vervotech = content_vervotech
+        self.expedia = content_expedia
 
 
     def hotel_api_authentication(self):
@@ -243,7 +243,7 @@ class HotelContentEAN:
             }
             hotel_amenities.append(facility_entry)
 
-
+    
 
         # Retrieve the images data.
         images = hotel_data.get("images", [])
@@ -404,8 +404,8 @@ class HotelContentEAN:
 
 
             
-# content_vervotech = {}
-# hotel_content = HotelContentEAN(content_vervotech=content_vervotech)
+# content_expedia = {}
+# hotel_content = HotelContentEAN(content_expedia=content_expedia)
 
 
 # hotel_id = "100001138"
@@ -461,8 +461,8 @@ folder_name = "./HotelInfo/EAN"
 
 for id in get_provider_ids:
     try:
-        content_vervotech = {}
-        hotel_content = HotelContentEAN(content_vervotech=content_vervotech)
+        content_expedia = {}
+        hotel_content = HotelContentEAN(content_expedia=content_expedia)
 
         data = hotel_content.iit_hotel_content(hotel_id=id)
 

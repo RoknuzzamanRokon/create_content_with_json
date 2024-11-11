@@ -272,8 +272,7 @@ def save_json_files_follow_systemId(folder_path):
     systemid_list = get_system_id_list(table, column, engine)
 
     print(f"Total System IDs found: {len(systemid_list)}")
-    # print(f"System ID list: {systemid_list}")
-    
+
     for systemid in systemid_list:
         file_name = f"{systemid}.json"
         file_path = os.path.join(folder_path, file_name)
@@ -282,21 +281,27 @@ def save_json_files_follow_systemId(folder_path):
             if os.path.exists(file_path):
                 print(f"File {file_name} already exists. Skipping...")
                 continue
-            
-            data_dict = get_specifiq_data_from_system_id(table, systemid, engine)
 
-            if data_dict is None:
-                print(f"Data not found for SystemId: {systemid}. Skipping........................")
+            try:
+                data_dict = get_specifiq_data_from_system_id(table, systemid, engine)
+
+                if data_dict is None:
+                    print(f"Data not found for SystemId: {systemid}. Skipping..................................")
+                    continue
+
+                with open(file_path, "w") as json_file:
+                    json.dump(data_dict, json_file, indent=4)
+
+                print(f"Saved {file_name} in {folder_path}")
+
+            except Exception as e:
+                print(f"Error processing data for SystemId {systemid}: {e}")
                 continue  
 
-            with open(file_path, "w") as json_file:
-                json.dump(data_dict, json_file, indent=4)
-
-            print(f"Saved {file_name} in {folder_path}")
-
         except Exception as e:
-            print(f"Error occurred while processing SystemId {systemid}: {e}")
+            print(f"Error occurred while checking or creating file for SystemId {systemid}: {e}")
             continue  
+
 
 
 folder_path = './HotelInfo/AE'
