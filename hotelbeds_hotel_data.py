@@ -120,49 +120,6 @@ class HotelContentHotelBeds:
 
 
 
-        # # Here get all image list.
-        # images_data = hotel_data.get("images", [])
-        # image_base_url = "http://photos.hotelbeds.com/giata"
-        # count = 0
-
-        # hotel_photo = {}
-        # room_images = {}
-
-        # if not images_data:
-        #     hotel_photo = "NULL"
-        #     room_images = "NULL"
-        # else:
-        #     for im_row in images_data:
-        #         order = im_row['order']
-        #         hotel_photo[order] = {
-        #             'picture_id': order,
-        #             'title': im_row['type']['description']['content'],
-        #             'url': f"{image_base_url}/{im_row['path']}".strip()
-        #         }
-
-        #         room_code = im_row.get('roomCode')
-        #         if room_code:
-        #             if room_code not in room_images:
-        #                 room_images[room_code] = {}
-                    
-        #             room_images[room_code][order] = {
-        #                 'caption': im_row['type']['description']['content'],
-        #                 'url': f"{image_base_url}/{im_row['path']}".strip()
-        #             }
-
-        #         count += 1
-
-        # try:
-        #     primary_photo_url = hotel_photo.get(0, {}).get('url', "NULL")
-        # except KeyError:
-        #     primary_photo_url = "NULL"
-            
-
-
-
-
-
-
         # Get phone number.
         phone_number_data = hotel_data.get("phones", [])
         formatted_number = []
@@ -173,6 +130,25 @@ class HotelContentHotelBeds:
             for value in phone_number_data:
                 phone_number_entry = value.get("phoneNumber", "NULL")
                 formatted_number.append(phone_number_entry)
+
+
+
+        # Email add.
+        email_add = hotel_data.get("email", "NULL")
+
+        if not email_add:
+            find_mail = "NULL"
+        else:
+            find_mail = hotel_data.get("email", "NULL")
+
+        # formatted_mail = []
+
+        # if not email_add:
+        #     formatted_mail = "NULL"
+        # else:
+        #     for value in email_add:
+        #         email_entry = value.get("email", "NULL")
+        #         formatted_mail.append(email_entry)
 
 
         # Get Discriptions in supplier data.
@@ -340,7 +316,7 @@ class HotelContentHotelBeds:
             "contacts": {
                 "phone_numbers": formatted_number,
                 "fax": "NULL",
-                "email_address": "NULL",
+                "email_address": find_mail,
                 "website": "NULL",
                 },
             
@@ -362,7 +338,6 @@ class HotelContentHotelBeds:
 
 
             
-
 
 # content_hotelbeds = {}
 # hotel_class = HotelContentHotelBeds(content_hotelbeds=content_hotelbeds)
