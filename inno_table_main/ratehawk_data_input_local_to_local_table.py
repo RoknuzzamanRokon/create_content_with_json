@@ -5,16 +5,13 @@ import json
 import os
 import ast
 
-# Database connection setup
-db_host = os.getenv('DB_HOST')
-db_user = os.getenv('DB_USER')
-db_pass = os.getenv('DB_PASSWORD')
-db_name = os.getenv('DB_NAME')
 
-DATABASE_URL_SERVER = f"mysql+pymysql://{db_user}:{db_pass}@{db_host}/{db_name}"
-server_engine = create_engine(DATABASE_URL_SERVER)
-Session_1 = sessionmaker(bind=server_engine)
-session_1 = Session_1()
+
+DATABASE_URL_LOCAL = "mysql+pymysql://root:@localhost/csvdata01_02102024"
+local_engine_L1 = create_engine(DATABASE_URL_LOCAL)
+Session_L1 = sessionmaker(bind=local_engine_L1)
+session_L1 = Session_L1()
+
 
 DATABASE_URL_LOCAL = "mysql+pymysql://root:@localhost/csvdata01_02102024"
 local_engine = create_engine(DATABASE_URL_LOCAL)
@@ -22,13 +19,13 @@ Session_2 = sessionmaker(bind=local_engine)
 session_2 = Session_2()
 
 metadata_local = MetaData()
-metadata_server = MetaData()
+metadata_local_L1 = MetaData()
 
 metadata_local.reflect(bind=local_engine)
-metadata_server.reflect(bind=server_engine)
+metadata_local_L1.reflect(bind=local_engine_L1)
 
 ratehawk = Table('ratehawk', metadata_local, autoload_with=local_engine)
-innova_hotels_main = Table('innova_hotels_main', metadata_server, autoload_with=server_engine)
+innova_hotels_main = Table('innova_hotels_main', metadata_local_L1, autoload_with=local_engine_L1)
 
 
 def transfer_all_rows():
@@ -38,13 +35,15 @@ def transfer_all_rows():
         batch_size = 10000
         total_batches = (total_rows_query // batch_size) + (1 if total_rows_query % batch_size > 0 else 0)
 
+
         for batch_number in range(total_batches):
             offset = batch_number * batch_size
             query = session_2.query(ratehawk).offset(offset).limit(batch_size).statement
             df = pd.read_sql(query, local_engine)
             rows = df.astype(str).to_dict(orient="records")
 
-            with session_1.begin():
+
+            with session_L1.begin():
                 for row_dict in rows:
                     keys_to_extract = [
                         "address", "hid", "images", "kind", "latitude", "longitude", "name", 
@@ -108,13 +107,14 @@ def transfer_all_rows():
                         data['Amenities_5'] = None
 
                     stmt = insert(innova_hotels_main).values(data)
-                    session_1.execute(stmt)
+                    session_L1.execute(stmt)
+
             print(f"Batch {batch_number + 1} of {total_batches} processed successfully.")
 
         print("All rows updated successfully in innova_hotels_main.")
     except Exception as e:
         print(f"An error occurred: {e}")
-        session_1.rollback()
+        session_L1.rollback()
         session_2.rollback()
-
+ 
 transfer_all_rows()
