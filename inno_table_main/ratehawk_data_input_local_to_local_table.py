@@ -89,7 +89,7 @@ def transfer_all_rows():
                         'Amenities_3': None,
                         'Amenities_4': None,
                         'Amenities_5': None,
-                        'SupplierCode': 'ratehawk'
+                        'SupplierCode': 'Ratehawk'
                     }
 
                     if amenity_groups:

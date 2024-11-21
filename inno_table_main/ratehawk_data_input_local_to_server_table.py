@@ -4,6 +4,9 @@ import pandas as pd
 import json
 import os
 import ast
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Database connection setup
 db_host = os.getenv('DB_HOST')
@@ -90,7 +93,7 @@ def transfer_all_rows():
                         'Amenities_3': None,
                         'Amenities_4': None,
                         'Amenities_5': None,
-                        'SupplierCode': 'ratehawk'
+                        'SupplierCode': 'Ratehawk'
                     }
 
                     if amenity_groups:

@@ -61,7 +61,7 @@ try:
             session.query(hotel_info_all)
             .filter(hotel_info_all.c.StatusUpdateHotelInfo == 'Done Json')
             .group_by(hotel_info_all.c.GiDestinationId)
-            .limit(100)
+            .limit(100) # Set here limit.....................................................
             .all()
         )
         # This section for primary image url.
@@ -92,7 +92,7 @@ try:
             else:
                 data['Amenities_1'] = None
 
-            data['SupplierCode'] = 'oryx'
+            data['SupplierCode'] = 'Oryx'
             data = {k: escape_single_quotes(v) for k, v in data.items()}
 
             # Set missing columns to NULL
