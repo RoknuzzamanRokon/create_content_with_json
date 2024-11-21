@@ -16,6 +16,12 @@ db_pass = os.getenv('DB_PASSWORD')
 db_name = os.getenv('DB_NAME')
 
 
+DATABASE_URL_LOCAL = "mysql+pymysql://root:@localhost/csvdata01_02102024"
+local_engine_L1 = create_engine(DATABASE_URL_LOCAL)
+Session_L1 = sessionmaker(bind=local_engine_L1)
+session_L1 = Session_L1()
+
+
 DATABASE_URL_SERVER = f"mysql+pymysql://{db_user}:{db_pass}@{db_host}/{db_name}"
 server_engine = create_engine(DATABASE_URL_SERVER)
 Session_1 = sessionmaker(bind=server_engine)
@@ -34,7 +40,7 @@ metadata_server.reflect(bind=server_engine)
 metadata_local.reflect(bind=local_engine)
 
 metadata_local = Table("Paximum", metadata_local, autoload_with=local_engine)
-metadata_server = Table("innova_hotels_main", metadata_server, autoload_with=server_engine)
+metadata_server = Table("innova_hotels_main", metadata_server, autoload_with=local_engine_L1)
 
 
 def get_data_from_paximum_api(hotel_id):
@@ -201,4 +207,4 @@ def insert_data_to_inno_table(engine, table, chunk_size):
 # print(data)
 
 
-insert_data_to_inno_table(server_engine, metadata_server, chunk_size=1000)
+insert_data_to_inno_table(local_engine_L1, metadata_server, chunk_size=1000)
