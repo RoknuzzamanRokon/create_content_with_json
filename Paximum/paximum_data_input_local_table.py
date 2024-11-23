@@ -188,7 +188,7 @@ def read_tracking_ids(file_path):
     Reads the tracking IDs from the specified file.
     """
     if os.path.exists(file_path):
-        with open(file_path, "r") as file:
+        with open(file_path, "r", encoding="utf-8") as file:
             tracking_ids = file.read().splitlines()
             return [id.strip() for id in tracking_ids if id.strip()]
     else:
@@ -198,7 +198,7 @@ def write_tracking_ids(file_path, tracking_ids):
     """
     Writes the tracking IDs back to the specified file.
     """
-    with open(file_path, "w") as file:
+    with open(file_path, "w", encoding="utf-8") as file:
         file.write("\n".join(tracking_ids))
 
 def insert_data_to_inno_table_with_tracking(engine, table, chunk_size, tracking_file_path):

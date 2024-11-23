@@ -183,6 +183,7 @@ def get_hotel_id_list(engine, table):
     return hotel_id_list
 
 
+
 def read_tracking_ids(file_path):
     """
     Reads the tracking IDs from the specified file.
@@ -200,6 +201,8 @@ def write_tracking_ids(file_path, tracking_ids):
     """
     with open(file_path, "w") as file:
         file.write("\n".join(tracking_ids))
+
+
 
 def insert_data_to_inno_table_with_tracking(engine, table, chunk_size, tracking_file_path):
     """
