@@ -304,7 +304,7 @@ def save_json_files_follow_systemId(folder_path):
 
 
 
-folder_path = './HotelInfo/AE'
+folder_path = './HotelInfo'
 
 save_json_files_follow_systemId(folder_path)
 

@@ -61,7 +61,7 @@ try:
             session.query(hotel_info_all)
             .filter(hotel_info_all.c.StatusUpdateHotelInfo == 'Done Json')
             .group_by(hotel_info_all.c.GiDestinationId)
-            .limit(100) # Set here limit.....................................................
+            .limit(100) # ----------------------------------------------------------------set limit 100 for check..........................................
             .all()
         )
         # This section for primary image url.
