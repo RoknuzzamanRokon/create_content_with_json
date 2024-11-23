@@ -58,4 +58,4 @@ def write_tracking_file(file_path, cities):
     with open(file_path, "w", encoding="utf-8") as file:
         file.write("\n".join(cities))
 
-        
+

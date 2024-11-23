@@ -194,6 +194,7 @@ def read_tracking_ids(file_path):
     else:
         return []
 
+
 def write_tracking_ids(file_path, tracking_ids):
     """
     Writes the tracking IDs back to the specified file.
