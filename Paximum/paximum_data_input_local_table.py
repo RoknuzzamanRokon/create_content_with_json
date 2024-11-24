@@ -104,7 +104,7 @@ def get_data_from_paximum_api(hotel_id):
 
 
 
-def updata_data_in_innova_table(hotel_id):
+def update_data_in_innova_table(hotel_id):
     try:
         hotel_data = get_data_from_paximum_api(hotel_id)
 
@@ -228,7 +228,7 @@ def insert_data_to_inno_table_with_tracking(engine, table, chunk_size, tracking_
                 continue
 
             # Fetch hotel data
-            hotel_data = updata_data_in_innova_table(hotel_id=hotel_id)
+            hotel_data = update_data_in_innova_table(hotel_id=hotel_id)
 
             if hotel_data:
                 chunk.append(hotel_data)
@@ -280,7 +280,7 @@ insert_data_to_inno_table_with_tracking(local_engine_L1, metadata_local_L1, chun
 # hotel_data = get_data_from_paximum_api(hotel_id="231182")
 # print(hotel_data)
 
-# data = updata_data_in_innova_table(hotel_id="231182")
+# data = update_data_in_innova_table(hotel_id="231182")
 # print(data)
 
 

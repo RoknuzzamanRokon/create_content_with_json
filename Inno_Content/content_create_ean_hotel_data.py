@@ -261,6 +261,7 @@ class HotelContentEAN:
         else:
             primary_photo = None
 
+
         specific_data = {
             "created": createdAt_str,
             "timestamp": timeStamp,

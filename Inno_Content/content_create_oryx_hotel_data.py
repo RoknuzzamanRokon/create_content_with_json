@@ -21,7 +21,7 @@ table_main = 'hotel_info_all'
 
 def get_system_id_list(table, column, engine):
     try: 
-        query = f"SELECT {column} FROM {table} WHERE StatusUpdateHotelInfo = 'Done Json' AND CountryCode = 'AE';"
+        query = f"SELECT SystemId FROM {table} WHERE StatusUpdateHotelInfo = 'Done Json' AND CountryCode = 'AE';"
         df = pd.read_sql(query, engine)
         # data_all = df[column].tolist()
         # print(len(data_all))
@@ -267,9 +267,9 @@ def save_json_files_follow_systemId(folder_path):
         os.makedirs(folder_path)
 
     table = 'hotel_info_all'
-    column = 'SystemId'
 
-    systemid_list = get_system_id_list(table, column, engine)
+
+    systemid_list = get_system_id_list(table, engine)
 
     print(f"Total System IDs found: {len(systemid_list)}")
 

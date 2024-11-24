@@ -1,0 +1,48 @@
+2024-11-24 15:35:53,222 - WARNING - Tracking file not found at tracking_file.txt, returning empty list.
+2024-11-24 15:35:53,222 - INFO - Tracking IDs loaded: 0 remaining.
+2024-11-24 15:35:53,439 - INFO - Fetched 9757 unique hotel IDs from the table.
+2024-11-24 15:35:53,441 - INFO - Updated tracking file at tracking_file.txt with 9757 cities.
+2024-11-24 15:35:53,441 - INFO - Tracking file created with 9757 IDs.
+2024-11-24 15:35:54,617 - INFO - Successfully fetched data for hotel code JP046183.
+2024-11-24 15:35:54,617 - INFO - Successfully updated data for hotel ID JP046183.
+2024-11-24 15:35:54,620 - INFO - Updated tracking file at tracking_file.txt with 9756 cities.
+2024-11-24 15:35:55,628 - INFO - Successfully fetched data for hotel code JP046603.
+2024-11-24 15:35:55,628 - INFO - Successfully updated data for hotel ID JP046603.
+2024-11-24 15:35:55,630 - INFO - Updated tracking file at tracking_file.txt with 9755 cities.
+2024-11-24 15:35:56,446 - INFO - Successfully fetched data for hotel code JP046804.
+2024-11-24 15:35:56,446 - INFO - Successfully updated data for hotel ID JP046804.
+2024-11-24 15:35:56,447 - INFO - Updated tracking file at tracking_file.txt with 9754 cities.
+2024-11-24 15:35:57,323 - INFO - Successfully fetched data for hotel code JP046870.
+2024-11-24 15:35:57,324 - INFO - Successfully updated data for hotel ID JP046870.
+2024-11-24 15:35:57,325 - INFO - Updated tracking file at tracking_file.txt with 9753 cities.
+2024-11-24 15:35:58,404 - INFO - Successfully fetched data for hotel code JP059730.
+2024-11-24 15:35:58,405 - INFO - Successfully updated data for hotel ID JP059730.
+2024-11-24 15:35:58,406 - INFO - Updated tracking file at tracking_file.txt with 9752 cities.
+2024-11-24 15:35:59,156 - INFO - Successfully fetched data for hotel code JP060468.
+2024-11-24 15:35:59,156 - INFO - Successfully updated data for hotel ID JP060468.
+2024-11-24 15:35:59,157 - INFO - Updated tracking file at tracking_file.txt with 9751 cities.
+2024-11-24 15:36:00,078 - INFO - Successfully fetched data for hotel code JP060489.
+2024-11-24 15:36:00,079 - INFO - Successfully updated data for hotel ID JP060489.
+2024-11-24 15:36:00,080 - INFO - Updated tracking file at tracking_file.txt with 9750 cities.
+2024-11-24 15:36:00,907 - INFO - Successfully fetched data for hotel code JP064775.
+2024-11-24 15:36:00,907 - INFO - Successfully updated data for hotel ID JP064775.
+2024-11-24 15:36:00,908 - INFO - Updated tracking file at tracking_file.txt with 9749 cities.
+2024-11-24 15:36:01,972 - INFO - Successfully fetched data for hotel code JP067921.
+2024-11-24 15:36:01,973 - INFO - Successfully updated data for hotel ID JP067921.
+2024-11-24 15:36:01,974 - INFO - Updated tracking file at tracking_file.txt with 9748 cities.
+2024-11-24 15:36:02,811 - INFO - Successfully fetched data for hotel code JP146935.
+2024-11-24 15:36:02,812 - INFO - Successfully updated data for hotel ID JP146935.
+2024-11-24 15:36:02,931 - INFO - Successfully inserted a chunk of 10 records.
+2024-11-24 15:36:02,988 - INFO - Updated tracking file at tracking_file.txt with 9747 cities.
+2024-11-24 15:36:04,060 - INFO - Successfully fetched data for hotel code JP148467.
+2024-11-24 15:36:04,061 - INFO - Successfully updated data for hotel ID JP148467.
+2024-11-24 15:36:04,062 - INFO - Updated tracking file at tracking_file.txt with 9746 cities.
+2024-11-24 15:36:05,044 - INFO - Successfully fetched data for hotel code JP266899.
+2024-11-24 15:36:05,044 - INFO - Successfully updated data for hotel ID JP266899.
+2024-11-24 15:36:05,047 - INFO - Updated tracking file at tracking_file.txt with 9745 cities.
+2024-11-24 15:36:05,929 - INFO - Successfully fetched data for hotel code JP778942.
+2024-11-24 15:36:05,930 - INFO - Successfully updated data for hotel ID JP778942.
+2024-11-24 15:36:05,931 - INFO - Updated tracking file at tracking_file.txt with 9744 cities.
+2024-11-24 15:36:06,743 - INFO - Successfully fetched data for hotel code JP795866.
+2024-11-24 15:36:06,744 - INFO - Successfully updated data for hotel ID JP795866.
+2024-11-24 15:36:06,745 - INFO - Updated tracking file at tracking_file.txt with 9743 cities.
