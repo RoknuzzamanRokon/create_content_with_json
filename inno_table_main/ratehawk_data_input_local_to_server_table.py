@@ -38,7 +38,7 @@ def transfer_all_rows():
     try:
         
         total_rows_query = session_2.query(ratehawk).count()
-        batch_size = 10000
+        batch_size = 1000
         total_batches = (total_rows_query // batch_size) + (1 if total_rows_query % batch_size > 0 else 0)
 
         for batch_number in range(total_batches):
@@ -50,7 +50,7 @@ def transfer_all_rows():
             with session_1.begin():
                 for row_dict in rows:
                     keys_to_extract = [
-                        "address", "hid", "images", "kind", "latitude", "longitude", "name", 
+                        "address", "id", "images", "kind", "latitude", "longitude", "name", 
                         "phone", "postal_code", "region", "star_rating", "email", "amenity_groups"
                     ]
                     filtered_row_dict = {key: row_dict.get(key, None) for key in keys_to_extract}
@@ -74,7 +74,7 @@ def transfer_all_rows():
                         images = [image_url.replace("t/{size}", "t/x500") for image_url in images]
 
                     data = {
-                        'HotelId': filtered_row_dict.get("hid", None),
+                        'HotelId': filtered_row_dict.get("id", None),
                         'City': region.get("name", None),
                         'Country': region.get("country_name", None),
                         'CountryCode': region.get("country_code", None),

@@ -32,7 +32,7 @@ def transfer_all_rows():
     try:
         
         total_rows_query = session_2.query(ratehawk).count()
-        batch_size = 10000
+        batch_size = 1000
         total_batches = (total_rows_query // batch_size) + (1 if total_rows_query % batch_size > 0 else 0)
 
 
