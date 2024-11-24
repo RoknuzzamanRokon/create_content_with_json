@@ -382,7 +382,7 @@ get_provider_ids = get_provider_hotel_id_list(engine=engine, table=table, provid
 
 
 
-folder_name = "./HotelInfo/Hotelbeds"
+folder_name = "../HotelInfo/Hotelbeds"
 
 
 

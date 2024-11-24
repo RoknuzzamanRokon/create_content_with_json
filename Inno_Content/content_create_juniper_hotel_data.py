@@ -136,7 +136,7 @@ def process_room_data(hotel_rooms):
 def create_content_with_api(hotel_code):
         hotel_data = get_data_using_juniper_api(hotel_code=hotel_code)
 
-        print(type(hotel_data))
+        # print(type(hotel_data))
         
 
 
@@ -400,11 +400,11 @@ def save_json_to_folder(data, hotel_id, folder_name):
     try:
         with open(file_path, "w") as json_file:
             json.dump(data, json_file, indent=4)
-        print(f"Data saved to {file_path}")
+        logger.info(f"Data saved to {file_path}")
     except TypeError as e:
-        print(f"Serialization error: {e}")
+        logger.error(f"Serialization error: {e}")
     except Exception as e:
-        print(f"An error occurred: {e}")
+        logger.error(f"An error occurred: {e}")
 
 
 def get_hotel_id_list(table, engine):
@@ -414,14 +414,14 @@ def get_hotel_id_list(table, engine):
         list = df['HotelId'].dropna().tolist()
         return list
     except Exception as e:
-        print(f"Error {e}")
+        logger.error(f"Error {e}")
         
 
 
 get_provider_ids = get_hotel_id_list(table=juniper_table, engine=engine)
 
 
-folder_name = "./HotelInfo/juniper"
+folder_name = "../HotelInfo/Juniper"
 
 
 
@@ -433,10 +433,10 @@ for id in get_provider_ids:
             continue
 
         save_json_to_folder(data=data, hotel_id=id, folder_name=folder_name)
-        print(f"Completed Createing Json file for hotel: {id}")
+        logger.info(f"Completed Createing Json file for hotel: {id}")
     
     except ValueError:
-        print(f"Skipping invalid id: {id}")
+        logger.error(f"Skipping invalid id: {id}")
 
 
 

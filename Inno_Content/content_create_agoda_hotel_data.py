@@ -277,7 +277,7 @@ table = "vervotech_mapping"
 providerFamily = "Agoda"
 ids = get_vervotech_id(engine=engine, table=table, providerFamily=providerFamily)
 
-folder_name = './HotelInfo/Agoda'
+folder_name = '../HotelInfo/Agoda'
 
 for id in ids:
     try:

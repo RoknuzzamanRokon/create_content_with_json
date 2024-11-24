@@ -454,7 +454,7 @@ get_provider_ids = get_provider_hotel_id_list(engine=engine, table=table, provid
 
 
 
-folder_name = "./HotelInfo/EAN"
+folder_name = "../HotelInfo/EAN"
 
 
 

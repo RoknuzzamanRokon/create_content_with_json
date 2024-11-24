@@ -344,7 +344,7 @@ get_provider_ids = get_hotel_id_list(local_engine, metadata_local)
 
 
 
-folder_name = "./HotelInfo/Paximum"
+folder_name = "../HotelInfo/Paximum"
 
 
 

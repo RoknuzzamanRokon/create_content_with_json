@@ -21,7 +21,7 @@ table_main = 'hotel_info_all'
 
 def get_system_id_list(table, column, engine):
     try: 
-        query = f"SELECT SystemId FROM {table} WHERE StatusUpdateHotelInfo = 'Done Json' AND CountryCode = 'AE';"
+        query = f"SELECT SystemId FROM {table} WHERE StatusUpdateHotelInfo = 'Done Json';"
         df = pd.read_sql(query, engine)
         # data_all = df[column].tolist()
         # print(len(data_all))
@@ -304,7 +304,7 @@ def save_json_files_follow_systemId(folder_path):
 
 
 
-folder_path = './HotelInfo'
+folder_path = '../HotelInfo/Oryx'
 
 save_json_files_follow_systemId(folder_path)
 

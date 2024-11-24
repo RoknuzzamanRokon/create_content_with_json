@@ -293,7 +293,7 @@ def save_json_file_follow_hotelId(folder_path, supplier_name):
 # print(row_data)
 
 supplier_name = 'ratehawk'
-folder_path = './HotelInfo/Ratehawk'
+folder_path = '../HotelInfo/Ratehawk'
 save_json_file_follow_hotelId(folder_path=folder_path, supplier_name=supplier_name)
 
 
