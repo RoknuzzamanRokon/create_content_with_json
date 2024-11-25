@@ -388,7 +388,7 @@ folder_name = "../HotelInfo/Hotelbeds"
 
 for id in get_provider_ids:
     try:
-        print(id)
+        # print(id)
 
         content_hotelbeds = {}
         hotel_content = HotelContentHotelBeds(content_hotelbeds=content_hotelbeds)

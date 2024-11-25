@@ -1,52 +1,57 @@
+import logging
 from sqlalchemy import create_engine, Table, MetaData, insert
 from sqlalchemy.orm import sessionmaker
 import pandas as pd
-import json
-import os
 import ast
+import sys
 
-
+# Configure logging
+logging.basicConfig(
+    filename="ratehawk_data_input_local_to_local_table.log",
+    level=logging.DEBUG,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+)
 
 DATABASE_URL_LOCAL = "mysql+pymysql://root:@localhost/csvdata01_02102024"
 local_engine_L1 = create_engine(DATABASE_URL_LOCAL)
 Session_L1 = sessionmaker(bind=local_engine_L1)
 session_L1 = Session_L1()
 
+local_engine_L2 = create_engine(DATABASE_URL_LOCAL)
+Session_L2 = sessionmaker(bind=local_engine_L2)
+session_L2 = Session_L2()
 
-DATABASE_URL_LOCAL = "mysql+pymysql://root:@localhost/csvdata01_02102024"
-local_engine = create_engine(DATABASE_URL_LOCAL)
-Session_2 = sessionmaker(bind=local_engine)
-session_2 = Session_2()
-
-metadata_local = MetaData()
+metadata_local_L2 = MetaData()
 metadata_local_L1 = MetaData()
 
-metadata_local.reflect(bind=local_engine)
+metadata_local_L2.reflect(bind=local_engine_L2)
 metadata_local_L1.reflect(bind=local_engine_L1)
 
-ratehawk = Table('ratehawk', metadata_local, autoload_with=local_engine)
+ratehawk = Table('ratehawk', metadata_local_L2, autoload_with=local_engine_L2)
 innova_hotels_main = Table('innova_hotels_main', metadata_local_L1, autoload_with=local_engine_L1)
 
 
 def transfer_all_rows():
     try:
-        
-        total_rows_query = session_2.query(ratehawk).count()
+        logging.info("Starting data transfer...")
+        total_rows_query = session_L2.query(ratehawk).count()
+        logging.info(f"Total rows to process: {total_rows_query}")
+
         batch_size = 1000
         total_batches = (total_rows_query // batch_size) + (1 if total_rows_query % batch_size > 0 else 0)
-
+        logging.info(f"Batch size: {batch_size}, Total batches: {total_batches}")
 
         for batch_number in range(total_batches):
             offset = batch_number * batch_size
-            query = session_2.query(ratehawk).offset(offset).limit(batch_size).statement
-            df = pd.read_sql(query, local_engine)
+            query = session_L2.query(ratehawk).offset(offset).limit(batch_size).statement
+            df = pd.read_sql(query, local_engine_L2)
             rows = df.astype(str).to_dict(orient="records")
-
+            logging.debug(f"Fetched {len(rows)} rows for batch {batch_number + 1}")
 
             with session_L1.begin():
-                for row_dict in rows:
+                for idx, row_dict in enumerate(rows, start=1):
                     keys_to_extract = [
-                        "address", "hid", "images", "kind", "latitude", "longitude", "name", 
+                        "address", "id", "images", "kind", "latitude", "longitude", "name",
                         "phone", "postal_code", "region", "star_rating", "email", "amenity_groups"
                     ]
                     filtered_row_dict = {key: row_dict.get(key, None) for key in keys_to_extract}
@@ -54,23 +59,26 @@ def transfer_all_rows():
                     try:
                         region = ast.literal_eval(filtered_row_dict.get("region", "{}"))
                     except (ValueError, SyntaxError):
+                        logging.warning(f"Error parsing 'region' field for row {idx} in batch {batch_number + 1}")
                         region = {}
 
                     try:
                         amenity_groups = ast.literal_eval(filtered_row_dict.get("amenity_groups", "[]"))
                     except (ValueError, SyntaxError):
+                        logging.warning(f"Error parsing 'amenity_groups' field for row {idx} in batch {batch_number + 1}")
                         amenity_groups = []
 
                     try:
                         images = ast.literal_eval(filtered_row_dict.get("images", "[]"))
                     except (ValueError, SyntaxError):
+                        logging.warning(f"Error parsing 'images' field for row {idx} in batch {batch_number + 1}")
                         images = []
 
                     if images:
                         images = [image_url.replace("t/{size}", "t/x500") for image_url in images]
 
                     data = {
-                        'HotelId': filtered_row_dict.get("hid", None),
+                        'HotelId': filtered_row_dict.get("id", None),
                         'City': region.get("name", None),
                         'Country': region.get("country_name", None),
                         'CountryCode': region.get("country_code", None),
@@ -99,22 +107,20 @@ def transfer_all_rows():
                         data['Amenities_3'] = first_group[2] if len(first_group) > 2 else None
                         data['Amenities_4'] = first_group[3] if len(first_group) > 3 else None
                         data['Amenities_5'] = first_group[4] if len(first_group) > 4 else None
-                    else:
-                        data['Amenities_1'] = None
-                        data['Amenities_2'] = None
-                        data['Amenities_3'] = None
-                        data['Amenities_4'] = None
-                        data['Amenities_5'] = None
 
                     stmt = insert(innova_hotels_main).values(data)
                     session_L1.execute(stmt)
+                    logging.debug(f"Row {idx} in batch {batch_number + 1} inserted successfully.")
 
-            print(f"Batch {batch_number + 1} of {total_batches} processed successfully.")
+            logging.info(f"Batch {batch_number + 1} of {total_batches} processed successfully.")
 
-        print("All rows updated successfully in innova_hotels_main.")
+        logging.info("All rows updated successfully in innova_hotels_main.")
     except Exception as e:
-        print(f"An error occurred: {e}")
+        logging.error(f"An error occurred: {str(e)}", exc_info=True)
         session_L1.rollback()
-        session_2.rollback()
- 
+        session_L2.rollback()
+
+
+# Execute the function
 transfer_all_rows()
+sys.exit()

@@ -16,7 +16,7 @@ juniper_mail = os.getenv("JUNIPER_EMAIL")
 
 # Configure logging
 logging.basicConfig(
-    filename="juniper_log.log",
+    filename="create_juniper_table.log",
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
 )
@@ -109,12 +109,14 @@ while total_pages is None or current_page <= total_pages:
     # Insert hotel data into the database
     with engine.connect() as conn:
         for hotel in hotel_list:
+            city_name = hotel.get("City", {}).get("#text", None)
             hotel_data = {
                 "HotelName": hotel.get("Name", None),  
                 "HotelId": hotel.get("@JPCode", None),
                 "ZipCode": hotel.get("ZipCode", None),
                 "Latitude": hotel.get("Latitude", None),
                 "Longitude": hotel.get("Longitude", None),
+                "City": city_name,
             }
 
             # Insert into the database

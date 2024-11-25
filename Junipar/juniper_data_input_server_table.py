@@ -165,13 +165,18 @@ def update_data_in_innova_table(hotel_code):
         for idx in range(1, 6):
             amenities[f"Amenities_{idx}"] = features_data[idx - 1]
 
+        with server_engine.connect() as conn:
+            city_query = f"SELECT City FROM juniper WHERE HotelId = {hotel_code}"
+            city_result = conn.execute(city_query).fetchone()
+            city_name = city_result[0] if city_result else None
+
         data = {
             'SupplierCode': 'Juniper',
             'HotelId': hotel_content['@Code'],
-            'City': None,
+            'City': city_name,
             'PostCode': hotel_content.get("Address", {}).get("PostalCode", None),
             'Country': hotel_content['Address']['Address'].split(',')[-1].strip(),
-            'CountryCode': hotel_content['Address']['Address'].split(',')[-1].strip(),
+            'CountryCode': None,
             'HotelName': hotel_content['HotelName'],
             'Latitude': hotel_content.get("Address", {}).get("Latitude", None),
             'Longitude': hotel_content.get("Address", {}).get("Longitude", None),
@@ -184,7 +189,6 @@ def update_data_in_innova_table(hotel_code):
             'FaxNumber': None,
             'HotelStar': hotel_content.get('HotelCategory', {}).get('#text', None)
         }
-
         data.update(amenities)
         logger.info(f"Successfully updated data for hotel ID {hotel_code}.")
         return data

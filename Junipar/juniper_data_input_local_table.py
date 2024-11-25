@@ -86,17 +86,17 @@ def get_payload(password, email, hotel_code):
     """
     payload = f"""<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns="http://www.juniper.es/webservice/2007/">
     <soapenv:Header/>
-    <soapenv:Body>
-        <HotelContent>
-            <HotelContentRQ Version="1" Language="en">
-                <Login Password="{password}" Email="{email}"/>
-                <HotelContentList>
-                    <Hotel Code="{hotel_code}"/>
-                </HotelContentList>
-            </HotelContentRQ>
-        </HotelContent>
-    </soapenv:Body>
-</soapenv:Envelope>"""
+        <soapenv:Body>
+            <HotelContent>
+                <HotelContentRQ Version="1" Language="en">
+                    <Login Password="{password}" Email="{email}"/>
+                    <HotelContentList>
+                        <Hotel Code="{hotel_code}"/>
+                    </HotelContentList>
+                </HotelContentRQ>
+            </HotelContent>
+        </soapenv:Body>
+    </soapenv:Envelope>"""
     return payload
 
 
@@ -118,7 +118,7 @@ def get_data_using_juniper_api(hotel_code):
 
     try:
         response = requests.post(url, headers=headers, data=payload)
-        response.raise_for_status()  # Will raise an HTTPError for bad responses
+        response.raise_for_status()  
         data_dict = xmltodict.parse(response.text)
         logger.info(f"Successfully fetched data for hotel code {hotel_code}.")
         return data_dict
@@ -157,13 +157,18 @@ def update_data_in_innova_table(hotel_code):
         for idx in range(1, 6):
             amenities[f"Amenities_{idx}"] = features_data[idx - 1]
 
+        with local_engine.connect() as conn:
+            query = text("SELECT City FROM juniper WHERE HotelId = :hotel_code")
+            city_result = conn.execute(query, {"hotel_code": hotel_code}).fetchone()
+            city_name = city_result[0] if city_result else None
+
         data = {
             'SupplierCode': 'Juniper',
             'HotelId': hotel_content['@Code'],
-            'City': None,
+            'City': city_name,
             'PostCode': hotel_content.get("Address", {}).get("PostalCode", None),
             'Country': hotel_content['Address']['Address'].split(',')[-1].strip(),
-            'CountryCode': hotel_content['Address']['Address'].split(',')[-1].strip(),
+            'CountryCode': None,
             'HotelName': hotel_content['HotelName'],
             'Latitude': hotel_content.get("Address", {}).get("Latitude", None),
             'Longitude': hotel_content.get("Address", {}).get("Longitude", None),
@@ -247,5 +252,5 @@ def insert_data_to_inno_table_with_tracking(engine, table, chunk_size, tracking_
 
 
 # Call function to insert data
-insert_data_to_inno_table_with_tracking(engine=local_engine, table=metadata_local, chunk_size=10, tracking_file_path="tracking_file.txt")
+insert_data_to_inno_table_with_tracking(engine=local_engine_L1, table=metadata_local_L1, chunk_size=10, tracking_file_path="tracking_file.txt")
 sys.exit()

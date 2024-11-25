@@ -117,7 +117,7 @@ def get_data_using_juniper_api(hotel_code):
 
     try:
         response = requests.post(url, headers=headers, data=payload)
-        response.raise_for_status()  # Will raise an HTTPError for bad responses
+        response.raise_for_status() 
         data_dict = xmltodict.parse(response.text)
         logger.info(f"Successfully fetched data for hotel code {hotel_code}.")
         return data_dict
@@ -246,5 +246,5 @@ def insert_data_to_inno_table_with_tracking(engine, table, chunk_size, tracking_
 
 
 # Call function to insert data
-insert_data_to_inno_table_with_tracking(engine=local_engine, table=metadata_local, chunk_size=10, tracking_file_path="tracking_file.txt")
+insert_data_to_inno_table_with_tracking(engine=local_engine_L1, table=metadata_local_L1, chunk_size=10, tracking_file_path="tracking_file.txt")
 sys.exit()
