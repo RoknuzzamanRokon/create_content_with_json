@@ -17,7 +17,7 @@ juniper_mail = os.getenv("JUNIPER_EMAIL")
 
 
 logging.basicConfig(
-    filename="juniper_list_data_log.log",
+    filename="content_create_juniper_hotel_data.log",
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
 )
@@ -80,10 +80,13 @@ def get_data_using_juniper_api(hotel_code):
 
 
 def process_room_data(hotel_rooms):
+    if not hotel_rooms:
+        print("No room data available. Skipping room processing.")
+        return []  
+
     room_data_list = []
-    
-    for idx, room in enumerate(hotel_rooms, start=1):  # Enumerate for room_id
-        # Parse room size and bed type from description
+
+    for idx, room in enumerate(hotel_rooms, start=1):  
         description = room.get("Description", "")
         size_room = None
         bed_type = []
@@ -97,15 +100,19 @@ def process_room_data(hotel_rooms):
                 "description": bed_info,
                 "configuration": [
                     {
-                        "quantity": "1",  # Example static quantity
-                        "size": "double",  # Example static size
+                        "quantity": "1",  
+                        "size": "double",  
                         "type": bed_info,
                     }
                 ],
                 "max_extrabeds": ""
             })
         
-        # Build the room data dictionary
+        # Handle RoomOccupancy safely
+        room_occupancy = room.get("RoomOccupancy", {})
+        max_adults = int(room_occupancy.get("@MaxAdults", 0))
+        max_children = int(room_occupancy.get("@MaxChildren", 0))
+
         room_data = {
             "room_type": {
                 "room_id": f"Room_{idx}",
@@ -114,9 +121,9 @@ def process_room_data(hotel_rooms):
                 "room_pic": "", 
                 "description": description,
                 "max_allowed": {
-                    "total": int(room["RoomOccupancy"]["@MaxAdults"]) + int(room["RoomOccupancy"]["@MaxChildren"]),
-                    "adults": int(room["RoomOccupancy"]["@MaxAdults"]),
-                    "children": int(room["RoomOccupancy"]["@MaxChildren"]),
+                    "total": max_adults + max_children,
+                    "adults": max_adults,
+                    "children": max_children,
                     "infant": 0  
                 },
                 "no_of_room": "",  
@@ -133,12 +140,14 @@ def process_room_data(hotel_rooms):
 
 
 
+
 def create_content_with_api(hotel_code):
         hotel_data = get_data_using_juniper_api(hotel_code=hotel_code)
 
-        # print(type(hotel_data))
-        
-
+        # Skip the process if hotel_data is None
+        if hotel_data is None:
+            print(f"Error: No data returned for hotel code {hotel_code}. Skipping.")
+            return None  # Or continue the loop if you're calling this function in a loop
 
         createdAt = datetime.now()
         createdAt_str = createdAt.strftime("%Y-%m-%dT%H:%M:%S")
@@ -146,94 +155,87 @@ def create_content_with_api(hotel_code):
         timeStamp = int(created_at_dt.timestamp())
         specific_data = {}
 
-        hotel_content = hotel_data['soap:Envelope']['soap:Body']['HotelContentResponse']['ContentRS']['Contents']['HotelContent']
-
-        # specific_data['created'] = createdAt
-        # specific_data['timestamp'] = timeStamp
-        # specific_data['hotel_id'] = hotel_content['Zone']['@JPDCode']
-        # specific_data['name'] = hotel_content['HotelName']
-        # specific_data['name_local'] = hotel_content['HotelName']
-        # specific_data['hotel_formerly_name'] = hotel_content['HotelName']
-        # specific_data['destination_code'] = hotel_content['Zone']['@Code']
-        # specific_data['country_code'] = hotel_content['Address']['Address'].split(',')[-1].strip()
-        # specific_data['brand_text'] = hotel_content['HotelChain']['Name']
-        # specific_data['property_type'] = hotel_content['HotelCategory']['@Type']
-        # specific_data['star_rating'] = hotel_content['HotelCategory']['#text']
-        # specific_data['chain'] = "NULL"
-        # specific_data['brand'] = "NULL"
-        # specific_data['logo'] = "NULL"
-        # primary_image = hotel_content.get('Images', {}).get('Image', [])[0]
-        # specific_data['primary_photo'] = primary_image.get('@FileName', 'N/A')
-                
+        try:
+            hotel_content = hotel_data['soap:Envelope']['soap:Body']['HotelContentResponse']['ContentRS']['Contents']['HotelContent']
+        except (TypeError, KeyError, AttributeError) as e:
+            print(f"Error accessing hotel data for hotel code {hotel_code}: {e}")
+            return None  # Skip this hotel and move to the next one
 
         # Get primary image here.
-        primary_image = hotel_content.get('Images', {}).get('Image', [])[0]
-        primary_file_name = primary_image.get("FileName") if primary_image else None
+        primary_image = None
+        primary_file_name = None
+        try:
+            images = hotel_content.get('Images', {}).get('Image', [])
+            if isinstance(images, list) and len(images) > 0:
+                primary_image = images[0]
+            else:
+                primary_image = images  
+            primary_file_name = primary_image.get("FileName") if primary_image else None
+        except (IndexError, AttributeError):
+            print("Primary image not found or invalid. Skipping.")
 
         # Get description text and title here.
-        descriptions = hotel_content["Descriptions"]["Description"]
-
         description_title = None
         description_text = None
-
-        if isinstance(descriptions, list):
-            for description in descriptions:
-                desc_type = description["@Type"]
+        try:
+            descriptions = hotel_content.get("Descriptions", {}).get("Description", [])
+            if isinstance(descriptions, list):
+                for description in descriptions:
+                    desc_type = description.get("@Type", None)
+                    if desc_type == "LNG":
+                        description_title = description.get("#text", None)
+                    elif desc_type == "ROO":
+                        description_text = description.get("#text", None)
+            else:
+                desc_type = descriptions.get("@Type", None)
                 if desc_type == "LNG":
-                    description_title = description["#text"]
+                    description_title = descriptions.get("#text", None)
                 elif desc_type == "ROO":
-                    description_text = description["#text"]
-        else:
-            desc_type = description["@Type"]
-            if desc_type == "LNG":
-                description_title = description["#text"]
-            elif desc_type == "ROO":
-                description_text = description["#text"]
+                    description_text = descriptions.get("#text", None)
+        except (KeyError, AttributeError):
+            print("Descriptions key is missing or invalid. Skipping.")
 
-
-        # specific_data['hotel_id'] = hotel_data['soap:Envelope']['soap:Body']['HotelContentResponse']['ContentRS']['Contents']['HotelContent']['Zone']['@JPDCode']
-
-        # specific_data['name'] = hotel_data['soap:Envelope']['soap:Body']['HotelContentResponse']['ContentRS']['Contents']['HotelContent']['HotelName']
         address_line_1 = hotel_content.get("Address", {}).get("Address", None)
         hotel_name = hotel_content['HotelName']
         address_query = f"{address_line_1}, {hotel_name}"
         google_map_site_link = f"http://maps.google.com/maps?q={address_query.replace(' ', '+')}" if address_line_1 != "NULL" else "NULL"
 
-
-        # Facilitys area here.
-        features = hotel_content["Features"]["Feature"]
-        if not isinstance(features, list):
-            features = [features]
-
+        # Facility entries
         facility_entries = []
-        for feature in features:
-            facility_entry = {
-                "type": feature["@Type"],
-                "title": feature["#text"],
-                "icon": "mdi mdi-alpha-f-circle-outline"
-            }
-            facility_entries.append(facility_entry)
-            
-
-        # Hotel image phote.
-        images = hotel_content["Images"]["Image"]
+        try:
+            features = hotel_content["Features"]["Feature"]
+            if not isinstance(features, list):
+                features = [features]
+            for feature in features:
+                facility_entry = {
+                    "type": feature.get("@Type", None),
+                    "title": feature.get("#text", None),
+                    "icon": "mdi mdi-alpha-f-circle-outline"
+                }
+                facility_entries.append(facility_entry)
+        except KeyError:
+            print("Features key is missing. Skipping this part.")
+                    
+        # Hotel image photo
+        images = hotel_content.get("Images", {}).get("Image", [])
         if not isinstance(images, list):
-            images = [images]
+            images = [images] if images else []  
 
-        # Process the image data
         image_entries = []
         for image in images:
-            entry = {
-                "picture_id": None,
-                "title": image["Title"],
-                "url": image["FileName"]
-            }
-            image_entries.append(entry)
+            if image: 
+                entry = {
+                    "picture_id": None,  
+                    "title": image.get("Title", None),  
+                    "url": image.get("FileName", None)  
+                }
+                image_entries.append(entry)
 
+        if not image_entries:
+            print("No images found for this hotel.")
 
         # Check time here.
         check_time = hotel_content.get("TimeInformation", {}).get("CheckTime", {}) or None
-
         if check_time:
             checkin = check_time.get("@CheckIn", None)
             checkout = check_time.get("@CheckOut", None)
@@ -241,17 +243,11 @@ def create_content_with_api(hotel_code):
             checkin = None
             checkout = None
 
-        # check_time = hotel_content["TimeInformation"]["CheckTime"]
-        # checkin = check_time["@CheckIn"]
-        # checkout = check_time["@CheckOut"]
-
         hotel_rooms = hotel_content.get("HotelRooms", {}).get("HotelRoom", {}) or None
-        # hotel_rooms = hotel_content["HotelRooms"]["HotelRoom"]
         if isinstance(hotel_rooms, dict): 
             hotel_rooms = [hotel_rooms]
 
         processed_data = process_room_data(hotel_rooms)
-
 
         specific_data = {
             "created": createdAt_str,
@@ -264,7 +260,7 @@ def create_content_with_api(hotel_code):
             "country_code":  hotel_content['Address']['Address'].split(',')[-1].strip(),
             "brand_text": None,
             "property_type": None,
-            "star_rating": hotel_content['HotelCategory']['#text'],
+            "star_rating": None,
             "chain": "NULL",
             "brand": "NULL",
             "logo": "NULL",
@@ -388,6 +384,14 @@ def create_content_with_api(hotel_code):
                 }
             ]
             }
+        
+        hotel_category = hotel_content.get('HotelCategory', None)
+        if isinstance(hotel_category, dict):
+            specific_data["star_rating"] = hotel_category.get('#text', None)
+        elif isinstance(hotel_category, str):
+            specific_data["star_rating"] = hotel_category
+        else:
+            specific_data["star_rating"] = None
 
         return specific_data
 
@@ -420,27 +424,26 @@ def get_hotel_id_list(table, engine):
 
 get_provider_ids = get_hotel_id_list(table=juniper_table, engine=engine)
 
-
 folder_name = "../HotelInfo/Juniper"
-
-
 
 for id in get_provider_ids:
     try:
-        # print(id)
+        file_path = os.path.join(folder_name, f"{id}.json")
+        
+        if os.path.exists(file_path):
+            logger.info(f"Hotel {id} already exists. Skipping.")
+            continue 
+
+        # Fetch hotel data
         data = create_content_with_api(hotel_code=id)
+        
         if data is None:
-            continue
+            continue  
 
         save_json_to_folder(data=data, hotel_id=id, folder_name=folder_name)
-        logger.info(f"Completed Createing Json file for hotel: {id}")
+        logger.info(f"Completed Creating JSON file for hotel: {id}")
     
     except ValueError:
         logger.error(f"Skipping invalid id: {id}")
-
-
-
-# data = create_content_with_api(hotel_code='JP146952')
-
-
-# print(data)
+    except Exception as e:
+        logger.error(f"Error processing hotel {id}: {e}")
