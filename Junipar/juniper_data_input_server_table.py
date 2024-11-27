@@ -91,18 +91,18 @@ def get_payload(password, email, hotel_code):
     Constructs the payload for the SOAP request.
     """
     payload = f"""<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns="http://www.juniper.es/webservice/2007/">
-    <soapenv:Header/>
-    <soapenv:Body>
-        <HotelContent>
-            <HotelContentRQ Version="1" Language="en">
-                <Login Password="{password}" Email="{email}"/>
-                <HotelContentList>
-                    <Hotel Code="{hotel_code}"/>
-                </HotelContentList>
-            </HotelContentRQ>
-        </HotelContent>
-    </soapenv:Body>
-</soapenv:Envelope>"""
+            <soapenv:Header/>
+                <soapenv:Body>
+                    <HotelContent>
+                        <HotelContentRQ Version="1" Language="en">
+                            <Login Password="{password}" Email="{email}"/>
+                            <HotelContentList>
+                                <Hotel Code="{hotel_code}"/>
+                            </HotelContentList>
+                        </HotelContentRQ>
+                    </HotelContent>
+                </soapenv:Body>
+            </soapenv:Envelope>"""
     return payload
 
 

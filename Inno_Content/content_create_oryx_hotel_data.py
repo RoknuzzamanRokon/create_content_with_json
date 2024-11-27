@@ -33,7 +33,6 @@ def get_system_id_list(table, column, engine):
 
 
 
-
 def get_specifiq_data_from_system_id(table, systemid, engine):
     # SQL query to fetch data for a specific SystemId
     query = f"SELECT * FROM {table} WHERE SystemId = '{systemid}';"
@@ -262,18 +261,53 @@ def get_specifiq_data_from_system_id(table, systemid, engine):
     return specific_data
 
 
-def save_json_files_follow_systemId(folder_path):
+
+def initialize_tracking_file(file_path, systemid_list):
+    """
+    Initializes the tracking file with all SystemIds if it doesn't already exist.
+    """
+    if not os.path.exists(file_path):
+        with open(file_path, "w", encoding="utf-8") as file:
+            file.write("\n".join(map(str, systemid_list)) + "\n")
+    else:
+        print(f"Tracking file already exists: {file_path}")
+
+
+def read_tracking_file(file_path):
+    """
+    Reads the tracking file and returns a set of remaining SystemIds.
+    """
+    with open(file_path, "r", encoding="utf-8") as file:
+        return {line.strip() for line in file.readlines()}
+
+
+def write_tracking_file(file_path, remaining_ids):
+    """
+    Updates the tracking file with unprocessed SystemIds.
+    """
+    try:
+        with open(file_path, "w", encoding="utf-8") as file:
+            file.write("\n".join(remaining_ids) + "\n")
+    except Exception as e:
+        print(f"Error writing to tracking file: {e}")
+
+
+def save_json_files_follow_systemId(folder_path, tracking_file_path, table, column, engine):
+    """
+    Save JSON files for each SystemId and keep the tracking file updated.
+    """
     if not os.path.exists(folder_path):
         os.makedirs(folder_path)
 
-    table = 'hotel_info_all'
+    systemid_list = get_system_id_list(table, column, engine)
+    print(f"Total System IDs fetched: {len(systemid_list)}")
 
+    initialize_tracking_file(tracking_file_path, systemid_list)
 
-    systemid_list = get_system_id_list(table, engine)
+    remaining_ids = read_tracking_file(tracking_file_path)
+    print(f"Remaining System IDs to process: {len(remaining_ids)}")
 
-    print(f"Total System IDs found: {len(systemid_list)}")
-
-    for systemid in systemid_list:
+    for systemid in list(remaining_ids):
         file_name = f"{systemid}.json"
         file_path = os.path.join(folder_path, file_name)
 
@@ -282,31 +316,28 @@ def save_json_files_follow_systemId(folder_path):
                 print(f"File {file_name} already exists. Skipping...")
                 continue
 
-            try:
-                data_dict = get_specifiq_data_from_system_id(table, systemid, engine)
+            data_dict = get_specifiq_data_from_system_id(table, systemid, engine)
+            if data_dict is None:
+                print(f"No data for SystemId {systemid}. Skipping...")
+                continue
 
-                if data_dict is None:
-                    print(f"Data not found for SystemId: {systemid}. Skipping..................................")
-                    continue
+            with open(file_path, "w", encoding="utf-8") as json_file:
+                json.dump(data_dict, json_file, indent=4)
 
-                with open(file_path, "w") as json_file:
-                    json.dump(data_dict, json_file, indent=4)
+            print(f"Saved {file_name} in {folder_path}")
 
-                print(f"Saved {file_name} in {folder_path}")
-
-            except Exception as e:
-                print(f"Error processing data for SystemId {systemid}: {e}")
-                continue  
+            # Remove the processed SystemId from the tracking file immediately
+            remaining_ids.remove(systemid)
+            write_tracking_file(tracking_file_path, remaining_ids)
 
         except Exception as e:
-            print(f"Error occurred while checking or creating file for SystemId {systemid}: {e}")
-            continue  
-
+            print(f"Error processing SystemId {systemid}: {e}")
+            continue
 
 
 folder_path = '../HotelInfo/Oryx'
+tracking_file_path = 'tracking_file_for_oryx_content_create.txt'
+table_main = 'hotel_info_all'
+column_name = 'SystemId'
 
-save_json_files_follow_systemId(folder_path)
-
-
-
+save_json_files_follow_systemId(folder_path, tracking_file_path, table_main, column_name, engine)

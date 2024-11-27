@@ -1,0 +1,26 @@
+2024-11-27 19:14:36,352 - ERROR - Error fetching Hotel IDs for supplier ratehawk: HotelId
+2024-11-27 19:19:39,152 - INFO - Starting data transfer...
+2024-11-27 19:23:49,171 - INFO - Total rows to process: 2606316
+2024-11-27 19:23:49,171 - INFO - Batch size: 5000, Total batches: 522
+2024-11-27 19:23:50,095 - DEBUG - Fetched 5000 rows for batch 1
+2024-11-27 19:23:50,117 - INFO - Starting data transfer...
+2024-11-27 19:28:06,501 - INFO - Total rows to process: 2606316
+2024-11-27 19:28:06,501 - INFO - Batch size: 5000, Total batches: 522
+2024-11-27 19:28:07,213 - DEBUG - Fetched 5000 rows for batch 1
+2024-11-27 19:28:07,234 - INFO - Starting data transfer...
+2024-11-27 19:32:14,334 - INFO - Total rows to process: 2606316
+2024-11-27 19:32:14,335 - INFO - Batch size: 5000, Total batches: 522
+2024-11-27 19:32:15,032 - DEBUG - Fetched 5000 rows for batch 1
+2024-11-27 19:32:15,053 - INFO - Starting data transfer...
+2024-11-27 19:36:18,340 - INFO - Total rows to process: 2606316
+2024-11-27 19:36:18,340 - INFO - Batch size: 5000, Total batches: 522
+2024-11-27 19:36:19,018 - DEBUG - Fetched 5000 rows for batch 1
+2024-11-27 19:36:19,037 - INFO - Starting data transfer...
+2024-11-27 19:40:20,056 - INFO - Total rows to process: 2606316
+2024-11-27 19:40:20,056 - INFO - Batch size: 5000, Total batches: 522
+2024-11-27 19:40:20,771 - DEBUG - Fetched 5000 rows for batch 1
+2024-11-27 19:40:20,796 - INFO - Starting data transfer...
+2024-11-27 19:44:27,804 - INFO - Total rows to process: 2606316
+2024-11-27 19:44:27,805 - INFO - Batch size: 5000, Total batches: 522
+2024-11-27 19:44:28,630 - DEBUG - Fetched 5000 rows for batch 1
+2024-11-27 19:44:28,653 - INFO - Starting data transfer...
