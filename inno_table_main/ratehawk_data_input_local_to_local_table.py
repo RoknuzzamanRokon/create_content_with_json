@@ -46,7 +46,7 @@ def transfer_all_rows():
             with session_L1.begin():
                 for row_dict in rows:
                     keys_to_extract = [
-                        "address", "hid", "images", "kind", "latitude", "longitude", "name", 
+                        "address", "id", "images", "kind", "latitude", "longitude", "name", 
                         "phone", "postal_code", "region", "star_rating", "email", "amenity_groups"
                     ]
                     filtered_row_dict = {key: row_dict.get(key, None) for key in keys_to_extract}
@@ -59,6 +59,7 @@ def transfer_all_rows():
                     try:
                         amenity_groups = ast.literal_eval(filtered_row_dict.get("amenity_groups", "[]"))
                     except (ValueError, SyntaxError):
+
                         amenity_groups = []
 
                     try:

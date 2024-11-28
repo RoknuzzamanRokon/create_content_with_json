@@ -7,6 +7,9 @@ import ast
 import requests
 from dotenv import load_dotenv
 from datetime import datetime
+from io import StringIO 
+import random
+
 
 load_dotenv()
 
@@ -17,10 +20,10 @@ db_pass = os.getenv('DB_PASSWORD')
 db_name = os.getenv('DB_NAME')
 
 
-DATABASE_URL_SERVER = f"mysql+pymysql://{db_user}:{db_pass}@{db_host}/{db_name}"
-server_engine = create_engine(DATABASE_URL_SERVER)
-Session_1 = sessionmaker(bind=server_engine)
-session_1 = Session_1()
+# DATABASE_URL_SERVER = f"mysql+pymysql://{db_user}:{db_pass}@{db_host}/{db_name}"
+# server_engine = create_engine(DATABASE_URL_SERVER)
+# Session_1 = sessionmaker(bind=server_engine)
+# session_1 = Session_1()
 
 
 DATABASE_URL_LOCAL = "mysql+pymysql://root:@localhost/csvdata01_02102024"
@@ -28,39 +31,76 @@ local_engine = create_engine(DATABASE_URL_LOCAL)
 Session_2 = sessionmaker(bind=local_engine)
 session_2 = Session_2()
 
-metadata_server = MetaData()
+# metadata_server = MetaData()
 metadata_local = MetaData()
 
-metadata_server.reflect(bind=server_engine)
+# metadata_server.reflect(bind=server_engine)
 metadata_local.reflect(bind=local_engine)
 
-metadata_local = Table("Paximum", metadata_local, autoload_with=local_engine)
-metadata_server = Table("innova_hotels_main", metadata_server, autoload_with=server_engine)
+paximum_table = Table("Paximum", metadata_local, autoload_with=local_engine)
+# metadata_server = Table("innova_hotels_main", metadata_server, autoload_with=server_engine)
+
+
+def authentication_paximum():
+    paximum_token = os.getenv("PAXIMUM_TOKEN")
+    paximum_agency = os.getenv("PAXIMUM_AGENCY")
+    paximum_user = os.getenv("PAXIMUM_USER")
+    paximum_password = os.getenv("PAXIMUM_PASSWORD")
+    
+    url = "http://service.stage.paximum.com/v2/api/authenticationservice/login"
+
+    payload = json.dumps({
+        "Agency": paximum_agency,
+        "User": paximum_user,
+        "Password": paximum_password
+    })
+    
+    headers = {
+        'Content-Type': 'application/json',
+        'Authorization': paximum_token
+    }
+
+    response = requests.request("POST", url, headers=headers, data=payload)
+
+    if response.status_code == 200:
+        try:
+            df = pd.read_json(StringIO(response.text))
+            token = df.get("body").get("token")
+            return token
+        except Exception as e:
+            print("Error parsing token:", e)
+            return None
+    else:
+        print(f"Failed to authenticate. Status code: {response.status_code}, Response: {response.text}")
+        return None
 
 
 def get_data_from_paximum_api(hotel_id):
     try:
-        paximum_token = os.getenv("PAXIMUM_TOKEN")
+        token = authentication_paximum()
+        # print(f"Authentication token: {token}")
 
         url = "http://service.stage.paximum.com/v2/api/productservice/getproductInfo"
 
         payload = json.dumps({
-        "productType": 2,
-        "ownerProvider": 2,
-        "product": hotel_id,
-        "culture": "en-US"
+            "productType": 2,
+            "ownerProvider": 2,
+            "product": hotel_id,
+            "culture": "en-US"
         })
         headers = {
-        'Content-Type': 'application/json',
-        'Authorization': paximum_token
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {token}'
         }
 
         response = requests.request("POST", url, headers=headers, data=payload)
 
+        # print(response)
 
         # print(type(response.text))
         try:
             response_dict = json.loads(response.text)
+            # print(response_dict)
             hotel_data = response_dict.get("body", {}).get("hotel", {})
             # print(hotel_data)
             # print(type(response_dict))
@@ -80,7 +120,7 @@ def updata_data_in_innova_table(hotel_id):
             print(f"No data found for hotel ID {hotel_id}")
             return None
 
-        hotel_address = hotel_data.get("address", {}) or {}
+        # hotel_address = hotel_data.get("address", {}) or {}
         
 
 
@@ -90,48 +130,54 @@ def updata_data_in_innova_table(hotel_id):
         timeStamp = int(created_at_dt.timestamp())
 
 
-        address_line_1 = hotel_address.get("addressLines", [None, None])[0]
-        address_line_2 = hotel_address.get("addressLines", [None, None])[1]
-        hotel_name = hotel_data.get("name", None)
+        # Address handling
+        hotel_address = hotel_data.get("address", {}) or {}
+        address_lines = hotel_address.get("addressLines", [])
+        address_line_1 = address_lines[0] if len(address_lines) > 0 else None
+        address_line_2 = address_lines[1] if len(address_lines) > 1 else None
 
-
-        address_query = f"{address_line_1}, {address_line_2}, {hotel_name}"
-        google_map_site_link = f"http://maps.google.com/maps?q={address_query.replace(' ', '+')}" if address_line_1 != "NULL" else "NULL"
+        # Construct full address
+        full_address = ', '.join(filter(None, [address_line_1, address_line_2]))
+        google_map_site_link = (
+            f"http://maps.google.com/maps?q={full_address.replace(' ', '+')}"
+            if full_address
+            else "NULL"
+        )
 
 
         seasons = hotel_data.get("seasons", [])
-        facility_categories = seasons[0].get("facilityCategories", []) if seasons else []
-        
+        facility_categories = seasons[0].get("facilityCategories", []) if len(seasons) > 0 else []
+
+
+        # All facilities list here.
         facilities = []
         for category in facility_categories:
             facilities.extend(category.get("facilities", []))
-        
-       
+
         hotel_amenities = [
             {
-                "type": facility.get("name", "Unknown"),  
-                "title": facility.get("name", "Unknown"),  
-                "icon": None  
+                "type": facility.get("name", "Unknown"),
+                "title": facility.get("name", "Unknown"),
+                "icon": None
             }
             for facility in facilities
         ]
 
 
-        seasons = hotel_data.get("seasons", [])
+
+        # Media files
         media_files = []
-        
-        if seasons:
+        if len(seasons) > 0:
             media_files = seasons[0].get("mediaFiles", [])
-        
+
         hotel_photo_data = [
-            {   
-                "picture_id": None,  
+            {
+                "picture_id": None,
                 "title": None,
-                "url": media.get("urlFull", "Unknown") 
+                "url": media.get("urlFull", "Unknown")
             }
             for media in media_files
         ]
-
 
 
         specific_data = {
@@ -185,26 +231,26 @@ def updata_data_in_innova_table(hotel_id):
             "address": {
                 "latitude": hotel_address.get("geolocation", {}).get("latitude", None),
                 "longitude": hotel_address.get("geolocation", {}).get("longitude", None),
-                "address_line_1": hotel_address.get("addressLines", [None, None])[0], 
-                "address_line_2": hotel_address.get("addressLines", [None, None])[1],
+                "address_line_1": address_line_1,
+                "address_line_2": address_line_2,
                 "city": hotel_address.get("city", {}).get("name", None),
                 "state": None,
                 "country": hotel_data.get("country", {}).get("name", None),
                 "country_code": hotel_data.get("country", {}).get("id", None),
                 "postal_code": hotel_address.get("zipCode", None),
-                "full_address": f"{hotel_address.get("addressLines", [None, None])[0]}, {hotel_address.get("addressLines", [None, None])[1]}",
+                "full_address": full_address,
                 "google_map_site_link": google_map_site_link,
                 "local_lang": {
                     "latitude": hotel_address.get("geolocation", {}).get("latitude", None),
                     "longitude": hotel_address.get("geolocation", {}).get("longitude", None),
-                    "address_line_1": hotel_address.get("addressLines", [None, None])[0], 
-                    "address_line_2": hotel_address.get("addressLines", [None, None])[1],
+                    "address_line_1": address_line_1, 
+                    "address_line_2": address_line_2,
                     "city": hotel_address.get("city", {}).get("name", None),
                     "state": None,
                     "country": hotel_data.get("country", {}).get("name", None),
                     "country_code": hotel_data.get("country", {}).get("id", None),
                     "postal_code": hotel_address.get("zipCode", None),
-                    "full_address": f"{hotel_address.get("addressLines", [None, None])[0]}, {hotel_address.get("addressLines", [None, None])[1]}", 
+                    "full_address": full_address, 
                     "google_map_site_link": google_map_site_link,
                 },
                 "mapping": {
@@ -335,29 +381,128 @@ def get_hotel_id_list(engine, table):
     return hotel_id_list
 
 
+def initialize_tracking_file(file_path, systemid_list):
+    """
+    Initializes the tracking file with all SystemIds if it doesn't already exist.
+    """
+    if not os.path.exists(file_path):
+        with open(file_path, "w", encoding="utf-8") as file:
+            file.write("\n".join(map(str, systemid_list)) + "\n")
+    else:
+        print(f"Tracking file already exists: {file_path}")
 
 
-
-get_provider_ids = get_hotel_id_list(local_engine, metadata_local)
-
-# print(get_provider_ids)
-
-
-
-folder_name = "../HotelInfo/Paximum"
+def read_tracking_file(file_path):
+    """
+    Reads the tracking file and returns a set of remaining SystemIds.
+    """
+    with open(file_path, "r", encoding="utf-8") as file:
+        return {line.strip() for line in file.readlines()}
 
 
-
-for id in get_provider_ids:
+def write_tracking_file(file_path, remaining_ids):
+    """
+    Updates the tracking file with unprocessed SystemIds.
+    """
     try:
-        print(id)
+        with open(file_path, "w", encoding="utf-8") as file:
+            file.write("\n".join(remaining_ids) + "\n")
+    except Exception as e:
+        print(f"Error writing to tracking file: {e}")
 
-        data = updata_data_in_innova_table(hotel_id=id)
-        if data is None:
+
+
+
+
+
+
+
+
+
+
+def save_json_files_follow_systemId(folder_path, tracking_file_path, table, engine):
+    """
+    Save JSON files for each SystemId and keep the tracking file updated.
+    """
+    if not os.path.exists(folder_path):
+        os.makedirs(folder_path)
+
+    systemid_list = get_hotel_id_list(engine, table)
+    print(f"Total System IDs fetched: {len(systemid_list)}")
+
+    initialize_tracking_file(tracking_file_path, systemid_list)
+
+    remaining_ids = read_tracking_file(tracking_file_path)
+    print(f"Remaining System IDs to process: {len(remaining_ids)}")
+
+    while remaining_ids:
+        systemid = random.choice(list(remaining_ids))  
+        file_name = f"{systemid}.json"
+        file_path = os.path.join(folder_path, file_name)
+
+        try:
+            if os.path.exists(file_path):
+                print(f"File {file_name} already exists. Skipping...........................Ok")
+                remaining_ids.remove(systemid)
+                write_tracking_file(tracking_file_path, remaining_ids)
+                continue
+
+            data_dict = updata_data_in_innova_table(systemid)
+            # print(data_dict)
+            if data_dict is None:
+                print(f"No data for SystemId {systemid}. Skipping------------------------No Data")
+                remaining_ids.remove(systemid)
+                write_tracking_file(tracking_file_path, remaining_ids)
+                continue
+
+            with open(file_path, "w", encoding="utf-8") as json_file:
+                json.dump(data_dict, json_file, indent=4)
+
+            print(f"Saved {file_name} in {folder_path}")
+
+            # Remove the processed SystemId from the tracking file immediately
+            remaining_ids.remove(systemid)
+            write_tracking_file(tracking_file_path, remaining_ids)
+
+        except Exception as e:
+            print(f"Error processing SystemId {systemid}: {e}")
             continue
 
-        save_json_to_folder(data=data, hotel_id=id, folder_name=folder_name)
-        print(f"Completed Createing Json file for hotel: {id}")
+
+folder_path = '../HotelInfo/Paximum'
+tracking_file_path = 'tracking_file_for_paximum_content_create.txt'
+# table = paximum_table
+# engine = local_engine
+
+save_json_files_follow_systemId(folder_path, tracking_file_path, paximum_table, local_engine)
+
+
+
+
+
+
+
+# get_provider_ids = get_hotel_id_list(local_engine, paximum_table)
+
+# # print(get_provider_ids)
+
+
+
+# folder_name = "../HotelInfo/Paximum"
+
+
+
+# for id in get_provider_ids:
+#     try:
+#         print(id)
+
+#         data = updata_data_in_innova_table(hotel_id=id)
+#         if data is None:
+#             continue
+
+#         save_json_to_folder(data=data, hotel_id=id, folder_name=folder_name)
+#         print(f"Completed Createing Json file for hotel: {id}")
     
-    except ValueError:
-        print(f"Skipping invalid id: {id}")
+#     except ValueError:
+#         print(f"Skipping invalid id: {id}")
+

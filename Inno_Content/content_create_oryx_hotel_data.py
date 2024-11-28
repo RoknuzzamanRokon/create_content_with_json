@@ -4,6 +4,7 @@ from datetime import datetime
 import pandas as pd
 import json
 import os
+import random
 
 load_dotenv()
 
@@ -307,18 +308,23 @@ def save_json_files_follow_systemId(folder_path, tracking_file_path, table, colu
     remaining_ids = read_tracking_file(tracking_file_path)
     print(f"Remaining System IDs to process: {len(remaining_ids)}")
 
-    for systemid in list(remaining_ids):
+    while remaining_ids:
+        systemid = random.choice(list(remaining_ids))  
         file_name = f"{systemid}.json"
         file_path = os.path.join(folder_path, file_name)
 
         try:
             if os.path.exists(file_path):
-                print(f"File {file_name} already exists. Skipping...")
+                print(f"File {file_name} already exists. Skipping...........................Ok")
+                remaining_ids.remove(systemid)
+                write_tracking_file(tracking_file_path, remaining_ids)
                 continue
 
             data_dict = get_specifiq_data_from_system_id(table, systemid, engine)
             if data_dict is None:
-                print(f"No data for SystemId {systemid}. Skipping...")
+                print(f"No data for SystemId {systemid}. Skipping------------------------No Data")
+                remaining_ids.remove(systemid)
+                write_tracking_file(tracking_file_path, remaining_ids)
                 continue
 
             with open(file_path, "w", encoding="utf-8") as json_file:
