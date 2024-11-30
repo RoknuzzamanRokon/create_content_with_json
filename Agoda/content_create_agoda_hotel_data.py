@@ -344,8 +344,6 @@ def save_json_files_follow_systemId(folder_path, tracking_file_path, engine):
 
         try:
             if os.path.exists(file_path):
-                print(f"File {file_name} already exists. Skipping...........................Ok")
-                remaining_ids.remove(systemid)
                 write_tracking_file(tracking_file_path, remaining_ids)
                 continue
 
