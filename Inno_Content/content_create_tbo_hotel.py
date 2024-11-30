@@ -8,6 +8,7 @@ from datetime import datetime
 import pandas as pd
 from sqlalchemy import create_engine
 import base64
+import random
 
 load_dotenv()
 
@@ -144,14 +145,9 @@ class HotelContentTBO:
         address_line_1 = vervotech_hotel_data.get("AddressLine1", "NULL")
         address_line_2 = vervotech_hotel_data.get("AddressLine2", "NULL")
         hotel_name = hotel_data.get("HotelName", "NUll")
-        long = vervotech_hotel_data.get("Longitude", "NULL")
-        lat = vervotech_hotel_data.get("Latitude", "NULL")
-        city = vervotech_hotel_data.get("CityName", "NULL")
-        postal_code = vervotech_hotel_data.get("PostalCode", "NULL")
-        state = vervotech_hotel_data.get("StateName", "NULL")
-        country = vervotech_hotel_data.get("CountryName", "NULL")
+       
 
-        address_query = f"{address_line_1}, {address_line_2}, {hotel_name}, {long}, {lat}, {city}, {postal_code}, {state}, {country}"
+        address_query = f"{address_line_1}, {address_line_2}, {hotel_name}"
         google_map_site_link = f"http://maps.google.com/maps?q={address_query.replace(' ', '+')}" if address_line_1 != "NULL" else "NULL"
 
 
@@ -417,19 +413,19 @@ class HotelContentTBO:
 
 
 
-def save_json_to_folder(data, hotel_id, folder_name):
-    if not os.path.exists(folder_name):
-        os.makedirs(folder_name)
+# def save_json_to_folder(data, hotel_id, folder_name):
+#     if not os.path.exists(folder_name):
+#         os.makedirs(folder_name)
     
-    file_path = os.path.join(folder_name, f"{hotel_id}.json")
-    try:
-        with open(file_path, "w") as json_file:
-            json.dump(data, json_file, indent=4)
-        print(f"Data saved to {file_path}")
-    except TypeError as e:
-        print(f"Serialization error: {e}")
-    except Exception as e:
-        print(f"An error occurred: {e}")
+#     file_path = os.path.join(folder_name, f"{hotel_id}.json")
+#     try:
+#         with open(file_path, "w") as json_file:
+#             json.dump(data, json_file, indent=4)
+#         print(f"Data saved to {file_path}")
+#     except TypeError as e:
+#         print(f"Serialization error: {e}")
+#     except Exception as e:
+#         print(f"An error occurred: {e}")
 
 
 def get_provider_hotel_id_list(engine, table, providerFamily):
@@ -439,30 +435,144 @@ def get_provider_hotel_id_list(engine, table, providerFamily):
     return data
 
 
-providerFamily = "TBO"
-get_provider_ids = get_provider_hotel_id_list(engine=engine, table=table, providerFamily=providerFamily)
+# providerFamily = "TBO"
+# get_provider_ids = get_provider_hotel_id_list(engine=engine, table=table, providerFamily=providerFamily)
 
-# print(get_provider_ids)
-
-
-
-folder_name = "../HotelInfo/TBO"
+# # print(get_provider_ids)
 
 
 
-for id in get_provider_ids:
+# folder_name = "../HotelInfo/TBO"
+
+
+
+# for id in get_provider_ids:
+#     try:
+#         print(id)
+
+#         content_expedia = {}
+#         hotel_content = HotelContentTBO(content_expedia=content_expedia)
+
+#         data = hotel_content.iit_hotel_content(hotel_id=id)
+#         if data is None:
+#             continue
+
+#         save_json_to_folder(data=data, hotel_id=id, folder_name=folder_name)
+#         print(f"Completed Createing Json file for hotel: {id}")
+    
+#     except ValueError:
+#         print(f"Skipping invalid id: {id}")
+
+
+
+
+
+
+
+
+
+
+
+
+
+def initialize_tracking_file(file_path, systemid_list):
+    """
+    Initializes the tracking file with all SystemIds if it doesn't already exist.
+    """
+    if not os.path.exists(file_path):
+        with open(file_path, "w", encoding="utf-8") as file:
+            file.write("\n".join(map(str, systemid_list)) + "\n")
+    else:
+        print(f"Tracking file already exists: {file_path}")
+
+
+def read_tracking_file(file_path):
+    """
+    Reads the tracking file and returns a set of remaining SystemIds.
+    """
+    with open(file_path, "r", encoding="utf-8") as file:
+        return {line.strip() for line in file.readlines()}
+
+
+def write_tracking_file(file_path, remaining_ids):
+    """
+    Updates the tracking file with unprocessed SystemIds.
+    """
     try:
-        print(id)
+        with open(file_path, "w", encoding="utf-8") as file:
+            file.write("\n".join(remaining_ids) + "\n")
+    except Exception as e:
+        print(f"Error writing to tracking file: {e}")
 
-        content_expedia = {}
-        hotel_content = HotelContentTBO(content_expedia=content_expedia)
 
-        data = hotel_content.iit_hotel_content(hotel_id=id)
-        if data is None:
+
+
+
+
+
+
+
+
+
+def save_json_files_follow_systemId(folder_path, tracking_file_path, engine):
+    """
+    Save JSON files for each SystemId and keep the tracking file updated.
+    """
+    if not os.path.exists(folder_path):
+        os.makedirs(folder_path)
+
+    table = "vervotech_mapping"
+    providerFamily = "TBO"
+
+    systemid_list = get_provider_hotel_id_list(engine=engine, table=table, providerFamily=providerFamily)
+    print(f"Total System IDs fetched: {len(systemid_list)}")
+
+    initialize_tracking_file(tracking_file_path, systemid_list)
+
+    remaining_ids = read_tracking_file(tracking_file_path)
+    print(f"Remaining System IDs to process: {len(remaining_ids)}")
+
+    while remaining_ids:
+        systemid = random.choice(list(remaining_ids))  
+        file_name = f"{systemid}.json"
+        file_path = os.path.join(folder_path, file_name)
+
+        try:
+            if os.path.exists(file_path):
+                write_tracking_file(tracking_file_path, remaining_ids)
+                continue
+
+
+            content_expedia = {}
+            hotel_content = HotelContentTBO(content_expedia=content_expedia)
+
+            data_dict = hotel_content.iit_hotel_content(hotel_id=systemid)
+
+            # print(data_dict)
+            if data_dict is None:
+                print(f"No data for SystemId {systemid}. Skipping------------------------No Data")
+                remaining_ids.remove(systemid)
+                write_tracking_file(tracking_file_path, remaining_ids)
+                continue
+
+            with open(file_path, "w", encoding="utf-8") as json_file:
+                json.dump(data_dict, json_file, indent=4)
+
+            print(f"Saved {file_name} in {folder_path}")
+
+            # Remove the processed SystemId from the tracking file immediately
+            remaining_ids.remove(systemid)
+            write_tracking_file(tracking_file_path, remaining_ids)
+
+        except Exception as e:
+            print(f"Error processing SystemId {systemid}: {e}")
             continue
 
-        save_json_to_folder(data=data, hotel_id=id, folder_name=folder_name)
-        print(f"Completed Createing Json file for hotel: {id}")
-    
-    except ValueError:
-        print(f"Skipping invalid id: {id}")
+
+
+folder_path = '../HotelInfo/TBO'
+tracking_file_path = 'tracking_file_for_tbo_content_create.txt'
+# table = paximum_table
+# engine = local_engine
+
+save_json_files_follow_systemId(folder_path, tracking_file_path, engine)

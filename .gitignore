@@ -2,6 +2,7 @@
 test01.py
 test02.py
 EAN
+Agoda/tracking_file_for_agoda_content_create.txt
 HotelInfo
 paximum_data_processing.log
 update_city_info.txt
@@ -11,5 +12,5 @@ test.py
 inno_table_main/ratehawk_data_input_local_to_local_table.log
 Paximum/tracking_file_for_paximum_content_create.txt
 Inno_Content/tracking_file_for_oryx_content_create.txt
-Agoda/tracking_file_for_agoda_content_create.txt
 tracking_file_for_agoda_content_create.txt
+Agoda/tracking_file_for_agoda_content_create.txt
