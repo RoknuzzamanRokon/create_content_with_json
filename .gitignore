@@ -12,5 +12,8 @@ test.py
 inno_table_main/ratehawk_data_input_local_to_local_table.log
 Paximum/tracking_file_for_paximum_content_create.txt
 Inno_Content/tracking_file_for_oryx_content_create.txt
-tracking_file_for_agoda_content_create.txt
 TBO/tracking_file_for_tbo_content_create.txt
+agoda_done_content_creations_tracking_file.txt
+final_agoda_content_file_path.txt
+Oryx/final_oryx_content_file_path.txt
+Oryx/oryx_done_content_creations_tracking_file.txt

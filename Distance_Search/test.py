@@ -3,6 +3,8 @@ from sqlalchemy import create_engine
 import os
 from dotenv import load_dotenv
 import pandas as pd
+import numpy as np
+from difflib import SequenceMatcher
 
 # Load environment variables
 load_dotenv()
@@ -33,31 +35,9 @@ def calculate_new_coordinates(latitude, longitude, distance_km):
         'west': (latitude, longitude - longitude_change)
     }
 
-
-
-# def print_coordinates(lat, lon, distance):
-#     result = calculate_new_coordinates(lat, lon, distance)
-#     print(f"North ({distance} km):")
-#     print(f"Latitude: {result['north'][0]}")
-#     print(f"Longitude: {result['north'][1]}\n")
-    
-#     print(f"South ({distance} km):")
-#     print(f"Latitude: {result['south'][0]}")
-#     print(f"Longitude: {result['south'][1]}\n")
-    
-#     print(f"East ({distance} km):")
-#     print(f"Latitude: {result['east'][0]}")
-#     print(f"Longitude: {result['east'][1]}\n")
-    
-#     print(f"West ({distance} km):")
-#     print(f"Latitude: {result['west'][0]}")
-    # print(f"Longitude: {result['west'][1]}\n")
-
-
-
 def get_a_location(supplier_code, hotel_id, table, engine):
     query = f"""
-    SELECT hotel_latitude, hotel_longitude
+    SELECT hotel_latitude, hotel_longitude, hotel_name
     FROM {table} 
     WHERE ProviderHotelId = %s AND ProviderFamily = %s
     """
@@ -68,6 +48,7 @@ def get_a_location(supplier_code, hotel_id, table, engine):
         df = df.dropna()
         df['hotel_latitude'] = df['hotel_latitude'].astype(float)
         df['hotel_longitude'] = df['hotel_longitude'].astype(float)
+        df['hotel_name'] = df['hotel_name'].astype(str)
         
         # Return as a list of tuples
         return df.to_records(index=False).tolist()
@@ -84,49 +65,131 @@ table = "vervotech_mapping"
 
 data = get_a_location(supplier_code, hotel_id, table, engine)
 
-
+print(data)
 print(f"You choice '{supplier_code}' supllyer and hotel id is: {hotel_id}")
 print(f"This hotel longitude is: {data[0][1]} and latitude is: {data[0][0]}")
+print(f"Hotel name: {data[0][2]}")
 print("\n")
 
+def get_similarity(a, b):
+    return SequenceMatcher(None, a.lower(), b.lower()).ratio() * 100
 
+def get_similar_hotels(hotels, target_name, threshold):
+    similar_hotels = hotels[hotels['hotel_name'].apply(lambda name: get_similarity(name, target_name) >= threshold)]
+    return similar_hotels
 
-latitude = data[0][0]
-longitude = data[0][1]
-distance_km = input("You are looking for a hotel within walking distance of KM:  ")
-
-
-
-bounds = calculate_new_coordinates(latitude, longitude, int(distance_km))
-north = bounds['north'][0]
-south = bounds['south'][0]
-east = bounds['east'][1]
-west = bounds['west'][1]
-
-
-def get_hotels_within_bounds(north, south, east, west, table, engine):
-    query = f"""
-    SELECT ProviderHotelId, ProviderFamily, hotel_city, hotel_name, hotel_country, country_code, hotel_longitude,
-    hotel_latitude 
-    FROM {table}
-    WHERE hotel_latitude BETWEEN %s AND %s
-      AND hotel_longitude BETWEEN %s AND %s
-    """
+def new_func(engine, table, calculate_new_coordinates, data):
+    latitude = data[0][0]
+    longitude = data[0][1]
+    target_name = data[0][2]
     
-    try:
-        df = pd.read_sql(query, engine, params=(south, north, west, east))
-        return df
-    except Exception as e:
-        print(f"Error retrieving hotel data: {e}")
-        return pd.DataFrame()
+    # print(f"Hotel name: {target_name}\n")
     
+    distance_km = input("You are looking for a hotel within walking distance of Kilometer:  ")
+    print("\n")
+
+    bounds = calculate_new_coordinates(latitude, longitude, float(distance_km))
+    north = bounds['north'][0]
+    south = bounds['south'][0]
+    east = bounds['east'][1]
+    west = bounds['west'][1]
+
+    def get_hotels_within_bounds(north, south, east, west, table, engine):
+        query = f"""
+        SELECT ProviderHotelId, ProviderFamily, hotel_city, hotel_name, hotel_country, country_code, hotel_longitude,
+        hotel_latitude 
+        FROM {table}
+        WHERE hotel_latitude BETWEEN %s AND %s
+          AND hotel_longitude BETWEEN %s AND %s
+        """
+    
+        try:
+            df = pd.read_sql(query, engine, params=(south, north, west, east))
+            return df
+        except Exception as e:
+            print(f"Error retrieving hotel data: {e}")
+            return pd.DataFrame()
+
+    hotels = get_hotels_within_bounds(north, south, east, west, table, engine)
+
+    if not hotels.empty:
+        total_hotels = len(hotels)
+        total_suppliers = hotels['ProviderFamily'].nunique()
+    
+        print("👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇")
+        print(f"Total Hotels = {total_hotels}")
+        print(f"Total Suppliers = {total_suppliers}")
+        print("\n\n")
+        print("All Found Hotel Details:")
+        print(hotels)
+        print("\n\n")
+    
+        # Check for similar hotels
+        similar_hotels = get_similar_hotels(hotels, target_name, threshold=60)
+
+        total_similar_hotels = len(similar_hotels)
+        print(f"Total Similar Hotels: {total_similar_hotels}")
+        if not similar_hotels.empty:
+            print("\nHotels with at least 60% name similarity:")
+            print(similar_hotels)
+        else:
+            print("No hotels with similar names found.")
+    
+        # # Check for duplicate hotels
+        # duplicate_hotels = hotels[hotels.duplicated(subset=['hotel_latitude', 'hotel_longitude'], keep=False)]
+    
+        # if not duplicate_hotels.empty:
+        #     print("\nExact Duplicate Hotels:")
+        #     print(duplicate_hotels)
+        # else:
+        #     print("No duplicate hotels found.")
+    
+    else:
+        print("No hotels found within the given range.")
 
 
-hotels = get_hotels_within_bounds(north, south, east, west, table, engine)
+new_func(engine, table, calculate_new_coordinates, data)
 
-# Print the hotels
-if not hotels.empty:
-    print("Hotels within the given range:")
-    print(hotels)
-else:
-    print("No hotels found within the given range.")
+# # Ensure latitude and longitude columns are numeric
+# hotels['hotel_latitude'] = pd.to_numeric(hotels['hotel_latitude'], errors='coerce')
+# hotels['hotel_longitude'] = pd.to_numeric(hotels['hotel_longitude'], errors='coerce')
+
+# hotels = hotels.dropna(subset=['hotel_latitude', 'hotel_longitude'])
+# def find_near_duplicates(df, lat_col='hotel_latitude', lon_col='hotel_longitude', threshold=0.0001):
+#     possible_mismatches = []
+#     coords = df[[lat_col, lon_col]].to_numpy()
+
+#     for i, (lat1, lon1) in enumerate(coords):
+#         for j, (lat2, lon2) in enumerate(coords):
+#             if i != j:  
+#                 lat_diff = abs(lat1 - lat2)
+#                 lon_diff = abs(lon1 - lon2)
+            
+#                 if lat_diff == 0 and lon_diff == 0:
+#                     continue
+            
+#                 if lat_diff <= threshold and lon_diff <= threshold:
+#                     possible_mismatches.append({
+#                     'Row 1': df.iloc[i].to_dict(),
+#                     'Row 2': df.iloc[j].to_dict(),
+#                     'Latitude Difference': lat_diff,
+#                     'Longitude Difference': lon_diff
+#                 })
+#     return possible_mismatches
+
+# threshold = 0.0001
+# near_duplicates = find_near_duplicates(hotels)
+
+# if near_duplicates:
+#     print("\nPossible Hotel Mismatches (Minor Differences in Coordinates):")
+#     for mismatch in near_duplicates:
+#         print(f"Row 1: {mismatch['Row 1']}")
+#         print(f"Row 2: {mismatch['Row 2']}")
+#         print(f"Latitude Difference: {mismatch['Latitude Difference']:.8f}")
+#         print(f"Longitude Difference: {mismatch['Longitude Difference']:.8f}\n")
+# else:
+#     print("\nNo possible hotel mismatches found.")
+
+
+
+
