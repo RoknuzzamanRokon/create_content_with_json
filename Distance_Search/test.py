@@ -96,7 +96,7 @@ def new_func(engine, table, calculate_new_coordinates, data):
 
     def get_hotels_within_bounds(north, south, east, west, table, engine):
         query = f"""
-        SELECT ProviderHotelId, ProviderFamily, hotel_city, hotel_name, hotel_country, country_code, hotel_longitude,
+        SELECT ProviderHotelId, ProviderFamily, hotel_city, hotel_name, hotel_country, hotel_longitude,
         hotel_latitude 
         FROM {table}
         WHERE hotel_latitude BETWEEN %s AND %s
@@ -116,80 +116,51 @@ def new_func(engine, table, calculate_new_coordinates, data):
         total_hotels = len(hotels)
         total_suppliers = hotels['ProviderFamily'].nunique()
     
+        print("\n\n")
         print("👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇")
         print(f"Total Hotels = {total_hotels}")
         print(f"Total Suppliers = {total_suppliers}")
         print("\n\n")
         print("All Found Hotel Details:")
         print(hotels)
+        
         print("\n\n")
-    
-        # Check for similar hotels
-        similar_hotels = get_similar_hotels(hotels, target_name, threshold=60)
-
+        # Check for similar hotels when match 100%
+        similar_hotels = get_similar_hotels(hotels, target_name, threshold=100)
+        print("Here match 👉👉 100% charecter and show similler name of hotel.")
         total_similar_hotels = len(similar_hotels)
         print(f"Total Similar Hotels: {total_similar_hotels}")
         if not similar_hotels.empty:
-            print("\nHotels with at least 60% name similarity:")
             print(similar_hotels)
         else:
             print("No hotels with similar names found.")
-    
-        # # Check for duplicate hotels
-        # duplicate_hotels = hotels[hotels.duplicated(subset=['hotel_latitude', 'hotel_longitude'], keep=False)]
-    
-        # if not duplicate_hotels.empty:
-        #     print("\nExact Duplicate Hotels:")
-        #     print(duplicate_hotels)
-        # else:
-        #     print("No duplicate hotels found.")
-    
+
+
+        print("\n\n")
+        # Check for similar hotels when match 80%
+        similar_hotels = get_similar_hotels(hotels, target_name, threshold=80)
+        print("Here match 👉👉 80% charecter and show similler name of hotel.")
+        total_similar_hotels = len(similar_hotels)
+        print(f"Total Similar Hotels: {total_similar_hotels}")
+        if not similar_hotels.empty:
+            print(similar_hotels)
+        else:
+            print("No hotels with similar names found.")
+
+
+        print("\n\n")
+        # Check for similar hotels when match 60%
+        similar_hotels = get_similar_hotels(hotels, target_name, threshold=60)
+        print("Here match 👉👉 60% charecter and show similler name of hotel.")
+        total_similar_hotels = len(similar_hotels)
+        print(f"Total Similar Hotels: {total_similar_hotels}")
+        if not similar_hotels.empty:
+            print(similar_hotels)
+        else:
+            print("No hotels with similar names found.")
+
     else:
         print("No hotels found within the given range.")
 
 
 new_func(engine, table, calculate_new_coordinates, data)
-
-# # Ensure latitude and longitude columns are numeric
-# hotels['hotel_latitude'] = pd.to_numeric(hotels['hotel_latitude'], errors='coerce')
-# hotels['hotel_longitude'] = pd.to_numeric(hotels['hotel_longitude'], errors='coerce')
-
-# hotels = hotels.dropna(subset=['hotel_latitude', 'hotel_longitude'])
-# def find_near_duplicates(df, lat_col='hotel_latitude', lon_col='hotel_longitude', threshold=0.0001):
-#     possible_mismatches = []
-#     coords = df[[lat_col, lon_col]].to_numpy()
-
-#     for i, (lat1, lon1) in enumerate(coords):
-#         for j, (lat2, lon2) in enumerate(coords):
-#             if i != j:  
-#                 lat_diff = abs(lat1 - lat2)
-#                 lon_diff = abs(lon1 - lon2)
-            
-#                 if lat_diff == 0 and lon_diff == 0:
-#                     continue
-            
-#                 if lat_diff <= threshold and lon_diff <= threshold:
-#                     possible_mismatches.append({
-#                     'Row 1': df.iloc[i].to_dict(),
-#                     'Row 2': df.iloc[j].to_dict(),
-#                     'Latitude Difference': lat_diff,
-#                     'Longitude Difference': lon_diff
-#                 })
-#     return possible_mismatches
-
-# threshold = 0.0001
-# near_duplicates = find_near_duplicates(hotels)
-
-# if near_duplicates:
-#     print("\nPossible Hotel Mismatches (Minor Differences in Coordinates):")
-#     for mismatch in near_duplicates:
-#         print(f"Row 1: {mismatch['Row 1']}")
-#         print(f"Row 2: {mismatch['Row 2']}")
-#         print(f"Latitude Difference: {mismatch['Latitude Difference']:.8f}")
-#         print(f"Longitude Difference: {mismatch['Longitude Difference']:.8f}\n")
-# else:
-#     print("\nNo possible hotel mismatches found.")
-
-
-
-
