@@ -429,7 +429,7 @@ class HotelContentTBO:
 
 
 def get_provider_hotel_id_list(engine, table, providerFamily):
-    query = f"SELECT ProviderHotelId FROM {table} WHERE ProviderFamily = '{providerFamily}';"
+    query = f"SELECT DISTINCT ProviderHotelId FROM {table} WHERE ProviderFamily = '{providerFamily}';"
     df = pd.read_sql(query, engine)
     data = df['ProviderHotelId'].tolist()
     return data
