@@ -266,7 +266,7 @@ def insert_data_to_inno_table_with_tracking(engine, table, chunk_size, tracking_
 tracking_file_path = "tracking_id_list.txt"
 
 # Run the insert operation
-insert_data_to_inno_table_with_tracking(local_engine_L1, metadata_local_L1, chunk_size=100, tracking_file_path=tracking_file_path)
+insert_data_to_inno_table_with_tracking(local_engine_L1, metadata_local_L1, chunk_size=500, tracking_file_path=tracking_file_path)
 
 
 

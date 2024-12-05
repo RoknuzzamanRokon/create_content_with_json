@@ -340,21 +340,6 @@ class HotelContentHotelBeds:
 
 
             
-
-# content_hotelbeds = {}
-# hotel_class = HotelContentHotelBeds(content_hotelbeds=content_hotelbeds)
-
-# hotel_id = "459724"
-# hotel_data = hotel_class.hotel_details(hotel_id=hotel_id)
-# json_hotel_data_format = json.dumps(hotel_data, indent=4) 
-# # print(json_hotel_data_format)
-
-# hotel_iit_content = hotel_class.iit_hotel_content(hotel_id=hotel_id)
-# json_hotel_iit_content = json.dumps(hotel_iit_content, indent=4)
-# print(json_hotel_iit_content)
-
-
-
 def save_json_to_folder(data, hotel_id, folder_name):
     if not os.path.exists(folder_name):
         os.makedirs(folder_name)
@@ -406,16 +391,6 @@ def get_provider_hotel_id_list(engine, table, providerFamily):
     
 #     except ValueError:
 #         print(f"Skipping invalid id: {id}")
-
-
-
-
-
-
-
-
-
-
 
 
 
