@@ -354,19 +354,19 @@ def updata_data_in_innova_table(hotel_id):
 
 
 
-def save_json_to_folder(data, hotel_id, folder_name):
-    if not os.path.exists(folder_name):
-        os.makedirs(folder_name)
+# def save_json_to_folder(data, hotel_id, folder_name):
+#     if not os.path.exists(folder_name):
+#         os.makedirs(folder_name)
     
-    file_path = os.path.join(folder_name, f"{hotel_id}.json")
-    try:
-        with open(file_path, "w") as json_file:
-            json.dump(data, json_file, indent=4)
-        print(f"Data saved to {file_path}")
-    except TypeError as e:
-        print(f"Serialization error: {e}")
-    except Exception as e:
-        print(f"An error occurred: {e}")
+#     file_path = os.path.join(folder_name, f"{hotel_id}.json")
+#     try:
+#         with open(file_path, "w") as json_file:
+#             json.dump(data, json_file, indent=4)
+#         print(f"Data saved to {file_path}")
+#     except TypeError as e:
+#         print(f"Serialization error: {e}")
+#     except Exception as e:
+#         print(f"An error occurred: {e}")
 
 
 
