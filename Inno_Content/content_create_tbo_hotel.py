@@ -128,7 +128,7 @@ class HotelContentTBO:
 
         # print(vervotech_hotel_data)
 
-        # data = vervotech_hotel_data.get("Latitude", "NULL"),
+        # data = vervotech_hotel_data.get("Latitude", None),
         # print(data)
 
 
@@ -142,19 +142,19 @@ class HotelContentTBO:
 
 
         # Genarate data for google links.
-        address_line_1 = vervotech_hotel_data.get("AddressLine1", "NULL")
-        address_line_2 = vervotech_hotel_data.get("AddressLine2", "NULL")
-        hotel_name = hotel_data.get("HotelName", "NUll")
+        address_line_1 = vervotech_hotel_data.get("AddressLine1", None)
+        address_line_2 = vervotech_hotel_data.get("AddressLine2", None)
+        hotel_name = hotel_data.get("HotelName", None)
        
 
         address_query = f"{address_line_1}, {address_line_2}, {hotel_name}"
-        google_map_site_link = f"http://maps.google.com/maps?q={address_query.replace(' ', '+')}" if address_line_1 != "NULL" else "NULL"
+        google_map_site_link = f"http://maps.google.com/maps?q={address_query.replace(' ', '+')}" if address_line_1 != None else None
 
 
 
 
         # Get email value in vervotech hotel.
-        formatted_email = "NULL"  
+        formatted_email = None  
         curated_hotels = vervotech_hotel_data.get("CuratedHotels", [])
 
         if curated_hotels:  
@@ -172,8 +172,8 @@ class HotelContentTBO:
 
         for value in facilities_list:
             facility_entry = {
-                "type": value.get("Name", "NULL"),
-                "title": value.get("Name", "NULL"),
+                "type": value.get("Name", None),
+                "title": value.get("Name", None),
                 "icon": "mdi mdi-alpha-f-circle-outline"
             }
             formatted_facilities.append(facility_entry)
@@ -184,12 +184,12 @@ class HotelContentTBO:
         formatted_airports = []
 
         if not nearest_airports:
-            formatted_airports = "NULL"
+            formatted_airports = None
         else:
             for value in nearest_airports:
                 airports_entry = {
-                    "code": value.get("Code", "NULL"),
-                    "name": value.get("Name", "NULL")
+                    "code": value.get("Code", None),
+                    "name": value.get("Name", None)
                 }
                 formatted_airports.append(airports_entry)
 
@@ -199,12 +199,12 @@ class HotelContentTBO:
         formatted_train_stations = []
 
         if not train_stations:
-            formatted_train_stations = "NULL"
+            formatted_train_stations = None
         else:
             for value in train_stations:
                 train_stations_entry = {
-                    "code": value.get("Code", "NULL"),
-                    "Name": value.get("Name", "NULL")
+                    "code": value.get("Code", None),
+                    "Name": value.get("Name", None)
                 }
                 formatted_train_stations.append(train_stations_entry)
         
@@ -214,12 +214,12 @@ class HotelContentTBO:
         formatted_pointOfInterests = []
 
         if not pointOfInterests:
-            formatted_pointOfInterests = "NULL"
+            formatted_pointOfInterests = None
         else:
             for value in pointOfInterests:
                 pointOfInterests_entry = {
-                    "code": value.get("Code", "NULL"),
-                    "Name": value.get("Name", "NULL")
+                    "code": value.get("Code", None),
+                    "Name": value.get("Name", None)
                 }
                 formatted_pointOfInterests.append(pointOfInterests_entry)
             
@@ -229,12 +229,12 @@ class HotelContentTBO:
         formatted_connected_locations = []
 
         if not connected_locations:
-            formatted_connected_locations = "NULL"
+            formatted_connected_locations = None
         else:
             for value in connected_locations:
                 connected_locations_entry = {
-                    "code": value.get("Code", "NULL"),
-                    "Name": value.get("Name", "NULL")
+                    "code": value.get("Code", None),
+                    "Name": value.get("Name", None)
                 }
                 formatted_connected_locations.append(connected_locations_entry)
         
@@ -244,12 +244,12 @@ class HotelContentTBO:
         formatted_stadiums = []
 
         if not stadiums:
-            formatted_stadiums = "NULL"
+            formatted_stadiums = None
         else:
             for value in stadiums:
                 stadiums_entry = {
-                    "code": value.get("Code", "NULL"),
-                    "Name": value.get("Name", "NULL")
+                    "code": value.get("Code", None),
+                    "Name": value.get("Name", None)
                 }
                 formatted_stadiums.append(stadiums_entry)
 
@@ -261,12 +261,12 @@ class HotelContentTBO:
         hotel_photos_all = []
 
         if not images:
-             hotel_photos_all = "NULL"
+             hotel_photos_all = None
         else:
             for image_url in images:
                 photo_entry = {
-                    "picture_id": "NULL",
-                    "title": "NULL",
+                    "picture_id": None,
+                    "title": None,
                     "url": image_url
                 }
                 hotel_photos_all.append(photo_entry)
@@ -276,7 +276,7 @@ class HotelContentTBO:
         hotel_data = self.hotel_details(hotel_id)
 
         if not hotel_data:
-            description_info = "NULL"
+            description_info = None
         else:
             description_info = {
                 "title": "Description",
@@ -287,99 +287,99 @@ class HotelContentTBO:
         specific_data = {
             "created": createdAt_str,
             "timestamp": timeStamp,
-            "hotel_id": hotel_data.get("HotelCode", "NUll"),
-            "name": hotel_data.get("HotelName", "NUll"),
-            "name_local": hotel_data.get("HotelName", "NUll"),
-            "hotel_formerly_name": hotel_data.get("HotelName", "NUll"),
-            "destination_code": "NULL",
-            "country_code":  hotel_data.get("CountryCode", "NULL"),
-            "brand_text": "NULL",
-            "property_type": vervotech_hotel_data.get("PropertyType", "NULL"),
-            "star_rating": hotel_data.get("HotelRating", "NULL"),
-            "chain": vervotech_hotel_data.get("ChainName", "NULL"),
-            "brand": vervotech_hotel_data.get("BrandName", "NULL"),
-            "logo": "NULL",
-            "primary_photo": hotel_data.get("Images", "NULL")[0],
+            "hotel_id": hotel_data.get("HotelCode", None),
+            "name": hotel_data.get("HotelName", None),
+            "name_local": hotel_data.get("HotelName", None),
+            "hotel_formerly_name": hotel_data.get("HotelName", None),
+            "destination_code": None,
+            "country_code":  hotel_data.get("CountryCode", None),
+            "brand_text": None,
+            "property_type": vervotech_hotel_data.get("PropertyType", None),
+            "star_rating": hotel_data.get("HotelRating", None),
+            "chain": vervotech_hotel_data.get("ChainName", None),
+            "brand": vervotech_hotel_data.get("BrandName", None),
+            "logo": None,
+            "primary_photo": hotel_data.get("Images", None)[0],
             
             "review_rating": {
                     "source": "Expedia.com",
-                    "number_of_reviews": "NULL",
-                    "rating_average": hotel_data.get("HotelRating", "NULL"),
-                    "popularity_score": "NULL"
+                    "number_of_reviews": None,
+                    "rating_average": hotel_data.get("HotelRating", None),
+                    "popularity_score": None
                 },
             "policies": {
                 "checkin": {
-                    "begin_time": hotel_data.get("CheckInTime", "NULL"),
-                    "end_time": "NULL",
-                    "instructions": "NULL",
-                    "special_instructions": "NULL",
-                    "min_age":  "NULL",
+                    "begin_time": hotel_data.get("CheckInTime", None),
+                    "end_time": None,
+                    "instructions": None,
+                    "special_instructions": None,
+                    "min_age":  None,
                     },
                 "checkout": {
-                    "time": hotel_data.get("CheckOutTime", "NULL"),
+                    "time": hotel_data.get("CheckOutTime", None),
                     },
                 "fees": {
-                    "optional": "NULL",
-                    "mandatory": "NULL",
+                    "optional": None,
+                    "mandatory": None,
                     },
-                "know_before_you_go": "NULL",
-                "pets": "NULL",
-                "remark": "NULL",
+                "know_before_you_go": None,
+                "pets": None,
+                "remark": None,
                 "child_and_extra_bed_policy": {
-                    "infant_age": "NULL",
-                    "children_age_from": "NULL",
-                    "children_age_to": "NULL",
-                    "children_stay_free": "NULL",
-                    "min_guest_age": "NULL"
+                    "infant_age": None,
+                    "children_age_from": None,
+                    "children_age_to": None,
+                    "children_stay_free": None,
+                    "min_guest_age": None
                     },
-                "nationality_restrictions": "NULL",
+                "nationality_restrictions": None,
                 },
             "address": {
-                "latitude": vervotech_hotel_data.get("Latitude", "NULL"),
-                "longitude": vervotech_hotel_data.get("Longitude", "NULL"),
-                "address_line_1": vervotech_hotel_data.get("AddressLine1", "NULL"),
-                "address_line_2": vervotech_hotel_data.get("AddressLine2", "NULL"),
-                "city": vervotech_hotel_data.get("CityName", "NULL"),
-                "state": vervotech_hotel_data.get("StateName", "NULL"),
-                "country": vervotech_hotel_data.get("CountryName", "NULL"),
-                "country_code": vervotech_hotel_data.get("CountryCode", "NULL"),
-                "postal_code": vervotech_hotel_data.get("PostalCode", "NULL"),
-                "full_address": f"{vervotech_hotel_data.get("AddressLine1", "NULL"),}, {vervotech_hotel_data.get("AddressLine2", "NULL")}",
+                "latitude": vervotech_hotel_data.get("Latitude", None),
+                "longitude": vervotech_hotel_data.get("Longitude", None),
+                "address_line_1": vervotech_hotel_data.get("AddressLine1", None),
+                "address_line_2": vervotech_hotel_data.get("AddressLine2", None),
+                "city": vervotech_hotel_data.get("CityName", None),
+                "state": vervotech_hotel_data.get("StateName", None),
+                "country": vervotech_hotel_data.get("CountryName", None),
+                "country_code": vervotech_hotel_data.get("CountryCode", None),
+                "postal_code": vervotech_hotel_data.get("PostalCode", None),
+                "full_address": f"{vervotech_hotel_data.get("AddressLine1", None),}, {vervotech_hotel_data.get("AddressLine2", None)}",
                 "google_map_site_link": google_map_site_link,
                 "local_lang": {
-                    "latitude": vervotech_hotel_data.get("Latitude", "NULL"),
-                    "longitude": vervotech_hotel_data.get("Longitude", "NULL"),
-                    "address_line_1": vervotech_hotel_data.get("AddressLine1", "NULL"),
-                    "address_line_2": vervotech_hotel_data.get("AddressLine2", "NULL"),
-                    "city": vervotech_hotel_data.get("CityName", "NULL"),
-                    "state": vervotech_hotel_data.get("StateName", "NULL"),
-                    "country": vervotech_hotel_data.get("CountryName", "NULL"),
-                    "country_code": vervotech_hotel_data.get("CountryCode", "NULL"),
-                    "postal_code": vervotech_hotel_data.get("PostalCode", "NULL"),
-                    "full_address": f"{vervotech_hotel_data.get("AddressLine1", "NULL"),}, {vervotech_hotel_data.get("AddressLine2", "NULL")}",
+                    "latitude": vervotech_hotel_data.get("Latitude", None),
+                    "longitude": vervotech_hotel_data.get("Longitude", None),
+                    "address_line_1": vervotech_hotel_data.get("AddressLine1", None),
+                    "address_line_2": vervotech_hotel_data.get("AddressLine2", None),
+                    "city": vervotech_hotel_data.get("CityName", None),
+                    "state": vervotech_hotel_data.get("StateName", None),
+                    "country": vervotech_hotel_data.get("CountryName", None),
+                    "country_code": vervotech_hotel_data.get("CountryCode", None),
+                    "postal_code": vervotech_hotel_data.get("PostalCode", None),
+                    "full_address": f"{vervotech_hotel_data.get("AddressLine1", None),}, {vervotech_hotel_data.get("AddressLine2", None)}",
                     "google_map_site_link": google_map_site_link,
                     },
                 "mapping": {
-                    "continent_id": "NULL",
-                    "country_id": hotel_data.get("CountryCode", "NULL"),
-                    "province_id": "NULL",
-                    "state_id": "NULL",
-                    "city_id": "NULL",
-                    "area_id": "NULL"
+                    "continent_id": None,
+                    "country_id": hotel_data.get("CountryCode", None),
+                    "province_id": None,
+                    "state_id": None,
+                    "city_id": None,
+                    "area_id": None
                     }
                 },
 
             "contacts": {
-                "phone_numbers": hotel_data.get("PhoneNumber", "NULL"),
-                "fax": vervotech_hotel_data.get("Fax", "NULL"),
+                "phone_numbers": hotel_data.get("PhoneNumber", None),
+                "fax": vervotech_hotel_data.get("Fax", None),
                 "email_address": formatted_email,
-                "website": vervotech_hotel_data.get("Website", "NULL"),
+                "website": vervotech_hotel_data.get("Website", None),
                 },
             
             "descriptions": description_info,
-            "room_type": "NULL",
-            "spoken_languages": "NULL",
-            "amenities": "NULL",
+            "room_type": None,
+            "spoken_languages": None,
+            "amenities": None,
             "facilities": formatted_facilities,
             "hotel_photo": hotel_photos_all, 
 

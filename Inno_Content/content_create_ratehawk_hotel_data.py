@@ -83,7 +83,7 @@ def create_content_follow_hotel_id(hotel_id):
                     hotel_name = filtered_row_dict.get("name"),
 
                     address_query = f"{address_line_1}, {hotel_name}"
-                    google_map_site_link = f"http://maps.google.com/maps?q={address_query.replace(' ', '+')}" if address_line_1 != "NULL" else "NULL"
+                    google_map_site_link = f"http://maps.google.com/maps?q={address_query.replace(' ', '+')}" if address_line_1 != None else None
 
 
                     try:
@@ -127,8 +127,8 @@ def create_content_follow_hotel_id(hotel_id):
                     if images:
                         for img in images:
                             formatted_image = {
-                                "picture_id": "NULL",
-                                "title": "NULL",
+                                "picture_id": None,
+                                "title": None,
                                 "url": img.replace("t/{size}", "t/x500")
                             }
                             hotel_photos.append(formatted_image)

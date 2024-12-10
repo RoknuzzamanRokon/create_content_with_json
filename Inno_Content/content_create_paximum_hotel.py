@@ -141,7 +141,7 @@ def updata_data_in_innova_table(hotel_id):
         google_map_site_link = (
             f"http://maps.google.com/maps?q={full_address.replace(' ', '+')}"
             if full_address
-            else "NULL"
+            else None
         )
 
 
@@ -192,9 +192,9 @@ def updata_data_in_innova_table(hotel_id):
             "brand_text": None,
             "property_type": None,
             "star_rating": hotel_data.get("stars", None),
-            "chain": "NULL",
-            "brand": "NULL",
-            "logo": "NULL",
+            "chain": None,
+            "brand": None,
+            "logo": None,
             "primary_photo": hotel_data.get("thumbnailFull", None),
             "review_rating": {
                 "source": None,
@@ -226,7 +226,7 @@ def updata_data_in_innova_table(hotel_id):
                     "children_stay_free": None,
                     "min_guest_age": None
                 },
-                "nationality_restrictions": "NULL",
+                "nationality_restrictions": None,
             },
             "address": {
                 "latitude": hotel_address.get("geolocation", {}).get("latitude", None),

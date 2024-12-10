@@ -51,110 +51,110 @@ def get_xml_to_json_data_for_agoda(api_key, hotel_id):
         timeStamp = int(created_at_dt.timestamp())
 
         # Genarate data for google links.
-        address_line_1 = hotel_feed_full.get("addresses", {}).get("address", [{}])[0].get("address_line_1", "NULL")
-        address_line_2 = hotel_feed_full.get("addresses", {}).get("address", [{}])[0].get("address_line_2", "NULL")
-        hotel_name = hotel_data.get("hotel_name", "NULL")
-        city = hotel_feed_full.get("addresses", {}).get("address", [{}])[0].get("city", "NULL")
-        postal_code = hotel_feed_full.get("addresses", {}).get("address", [{}])[0].get("postal_code", "NULL")
-        country = hotel_feed_full.get("addresses", {}).get("address", [{}])[0].get("country", "NULL")
+        address_line_1 = hotel_feed_full.get("addresses", {}).get("address", [{}])[0].get("address_line_1", None)
+        address_line_2 = hotel_feed_full.get("addresses", {}).get("address", [{}])[0].get("address_line_2", None)
+        hotel_name = hotel_data.get("hotel_name", None)
+        city = hotel_feed_full.get("addresses", {}).get("address", [{}])[0].get("city", None)
+        postal_code = hotel_feed_full.get("addresses", {}).get("address", [{}])[0].get("postal_code", None)
+        country = hotel_feed_full.get("addresses", {}).get("address", [{}])[0].get("country", None)
 
         address_query = f"{address_line_1}, {address_line_2}, {hotel_name}, {city}, {postal_code}, {country}"
-        google_map_site_link = f"http://maps.google.com/maps?q={address_query.replace(' ', '+')}" if address_line_1 != "NULL" else "NULL"
+        google_map_site_link = f"http://maps.google.com/maps?q={address_query.replace(' ', '+')}" if address_line_1 != None else None
 
 
         specific_data = {
             "created": createdAt_str,
             "timestamp": timeStamp,
             "hotel_id": hotel_data["hotel_id"],
-            "name": hotel_data.get("hotel_name", "NULL"),
-            "name_local": hotel_data.get("translated_name", "NULL"),
-            "hotel_formerly_name": hotel_data.get("hotel_formerly_name", "NULL"),
-            "destination_code": "NULL",
-            "country_code": "NULL",
-            "brand_text": "NULL",
-            "property_type": hotel_data.get("accommodation_type", "NULL"),
-            "star_rating": hotel_data.get("star_rating", "NULL"),
-            "chain": "NULL",
-            "brand": "NULL",
-            "logo": "NULL",
-            "primary_photo": "NULL",
+            "name": hotel_data.get("hotel_name", None),
+            "name_local": hotel_data.get("translated_name", None),
+            "hotel_formerly_name": hotel_data.get("hotel_formerly_name", None),
+            "destination_code": None,
+            "country_code": None,
+            "brand_text": None,
+            "property_type": hotel_data.get("accommodation_type", None),
+            "star_rating": hotel_data.get("star_rating", None),
+            "chain": None,
+            "brand": None,
+            "logo": None,
+            "primary_photo": None,
             "review_rating": {
-                "source": "NULL",
-                "number_of_reviews": hotel_data.get("number_of_reviews", "NULL"),
-                "rating_average": hotel_data.get("rating_average", "NULL"),
-                "popularity_score": hotel_data.get("popularity_score", "NULL"),
+                "source": None,
+                "number_of_reviews": hotel_data.get("number_of_reviews", None),
+                "rating_average": hotel_data.get("rating_average", None),
+                "popularity_score": hotel_data.get("popularity_score", None),
             },
             "policies": {
                 "check_in": {
-                    "begin_time": "NULL",
-                    "end_time": "NULL",
-                    "instructions": "NULL",
-                    "min_age": "NULL",
+                    "begin_time": None,
+                    "end_time": None,
+                    "instructions": None,
+                    "min_age": None,
                 },
                 "checkout": {
-                    "time": "NULL",
+                    "time": None,
                 },
                 "fees": {
-                    "optional": "NULL",
+                    "optional": None,
                 },
-                "know_before_you_go": "NULL",
+                "know_before_you_go": None,
                 "pets": [
                     "Pets not allowed"
                 ],
-                "remark": "NULL",
+                "remark": None,
                 "child_and_extra_bed_policy": {
-                    "infant_age": hotel_data.get("child_and_extra_bed_policy", {}).get("infant_age", "NULL"),
-                    "children_age_from": hotel_data.get("child_and_extra_bed_policy", {}).get("children_age_from", "NULL"),
-                    "children_age_to": hotel_data.get("child_and_extra_bed_policy", {}).get("children_age_to", "NULL"),
-                    "children_stay_free": hotel_data.get("child_and_extra_bed_policy", {}).get("children_stay_free", "NULL"),
-                    "min_guest_age": hotel_data.get("child_and_extra_bed_policy", {}).get("min_guest_age", "NULL")
+                    "infant_age": hotel_data.get("child_and_extra_bed_policy", {}).get("infant_age", None),
+                    "children_age_from": hotel_data.get("child_and_extra_bed_policy", {}).get("children_age_from", None),
+                    "children_age_to": hotel_data.get("child_and_extra_bed_policy", {}).get("children_age_to", None),
+                    "children_stay_free": hotel_data.get("child_and_extra_bed_policy", {}).get("children_stay_free", None),
+                    "min_guest_age": hotel_data.get("child_and_extra_bed_policy", {}).get("min_guest_age", None)
                 },
-                "nationality_restrictions": hotel_data.get("nationality_restrictions", "NULL"),
+                "nationality_restrictions": hotel_data.get("nationality_restrictions", None),
             },
             "address": {
-                "latitude": hotel_data.get("latitude", "NULL"),
-                "longitude": hotel_data.get("longitude", "NULL"),
-                "address_line_1": hotel_feed_full.get("addresses", {}).get("address", [{}])[0].get("address_line_1", "NULL"),
-                "address_line_2": hotel_feed_full.get("addresses", {}).get("address", [{}])[0].get("address_line_2", "NULL"),
-                "city": hotel_feed_full.get("addresses", {}).get("address", [{}])[0].get("city", "NULL"),
-                "state": hotel_feed_full.get("addresses", {}).get("address", [{}])[0].get("state", "NULL"),
-                "country": hotel_feed_full.get("addresses", {}).get("address", [{}])[0].get("country", "NULL"),
-                "country_code": "NULL",
-                "postal_code": hotel_feed_full.get("addresses", {}).get("address", [{}])[0].get("postal_code", "NULL"),
-                "full_address": f"{hotel_feed_full.get("addresses", {}).get("address", [{}])[0].get("address_line_1", "NULL")}, {hotel_feed_full.get("addresses", {}).get("address", [{}])[0].get("address_line_2", "NULL")}",
+                "latitude": hotel_data.get("latitude", None),
+                "longitude": hotel_data.get("longitude", None),
+                "address_line_1": hotel_feed_full.get("addresses", {}).get("address", [{}])[0].get("address_line_1", None),
+                "address_line_2": hotel_feed_full.get("addresses", {}).get("address", [{}])[0].get("address_line_2", None),
+                "city": hotel_feed_full.get("addresses", {}).get("address", [{}])[0].get("city", None),
+                "state": hotel_feed_full.get("addresses", {}).get("address", [{}])[0].get("state", None),
+                "country": hotel_feed_full.get("addresses", {}).get("address", [{}])[0].get("country", None),
+                "country_code": None,
+                "postal_code": hotel_feed_full.get("addresses", {}).get("address", [{}])[0].get("postal_code", None),
+                "full_address": f"{hotel_feed_full.get("addresses", {}).get("address", [{}])[0].get("address_line_1", None)}, {hotel_feed_full.get("addresses", {}).get("address", [{}])[0].get("address_line_2", None)}",
                 "google_map_site_link": google_map_site_link,
                 "local_lang": {
-                    "latitude": hotel_data.get("latitude", "NULL"),
-                    "longitude": hotel_data.get("longitude", "NULL"),
-                    "address_line_1": hotel_feed_full.get("addresses", {}).get("address", [{}])[1].get("address_line_1", "NULL"),
-                    "address_line_2": hotel_feed_full.get("addresses", {}).get("address", [{}])[1].get("address_line_2", "NULL"),
-                    "city": hotel_feed_full.get("addresses", {}).get("address", [{}])[1].get("city", "NULL"),
-                    "state": hotel_feed_full.get("addresses", {}).get("address", [{}])[1].get("state", "NULL"),
-                    "country": hotel_feed_full.get("addresses", {}).get("address", [{}])[1].get("country", "NULL"),
-                    "country_code": "NULL",
-                    "postal_code": hotel_feed_full.get("addresses", {}).get("address", [{}])[1].get("postal_code", "NULL"),
-                    "full_address": f"{hotel_feed_full.get("addresses", {}).get("address", [{}])[1].get("address_line_1", "NULL")}, {hotel_feed_full.get("addresses", {}).get("address", [{}])[1].get("address_line_2", "NULL")}",
+                    "latitude": hotel_data.get("latitude", None),
+                    "longitude": hotel_data.get("longitude", None),
+                    "address_line_1": hotel_feed_full.get("addresses", {}).get("address", [{}])[1].get("address_line_1", None),
+                    "address_line_2": hotel_feed_full.get("addresses", {}).get("address", [{}])[1].get("address_line_2", None),
+                    "city": hotel_feed_full.get("addresses", {}).get("address", [{}])[1].get("city", None),
+                    "state": hotel_feed_full.get("addresses", {}).get("address", [{}])[1].get("state", None),
+                    "country": hotel_feed_full.get("addresses", {}).get("address", [{}])[1].get("country", None),
+                    "country_code": None,
+                    "postal_code": hotel_feed_full.get("addresses", {}).get("address", [{}])[1].get("postal_code", None),
+                    "full_address": f"{hotel_feed_full.get("addresses", {}).get("address", [{}])[1].get("address_line_1", None)}, {hotel_feed_full.get("addresses", {}).get("address", [{}])[1].get("address_line_2", None)}",
                     "google_map_site_link": google_map_site_link,
                 },
                 "mapping": {
-                    "continent_id": "NULL",
-                    "country_id": hotel_feed_full.get("addresses", {}).get("address", [{}])[1].get("country", "NULL"),
-                    "province_id": "NULL",
-                    "state_id": "NULL",
-                    "city_id": "NULL",
-                    "area_id": "NULL"
+                    "continent_id": None,
+                    "country_id": hotel_feed_full.get("addresses", {}).get("address", [{}])[1].get("country", None),
+                    "province_id": None,
+                    "state_id": None,
+                    "city_id": None,
+                    "area_id": None
                 }
             },
             "contacts": {
                 "phone_numbers": [],
-                "fax": "NULL",
-                "email_address": "NULL",
-                "website": "NULL"
+                "fax": None,
+                "email_address": None,
+                "website": None
             },
             "descriptions": [
                 {
-                    "title": "NULL",
-                    "text": "NULL"
+                    "title": None,
+                    "text": None
                 }
             ],
             "room_type": [],
@@ -175,27 +175,27 @@ def get_xml_to_json_data_for_agoda(api_key, hotel_id):
             for room in room_types:
                 if isinstance(room, dict):
                     room_data = {
-                        "room_id": room.get("hotel_room_type_id", "NULL"),
-                        "title": room.get("standard_caption", "NULL"),
-                        "title_lang": room.get("standard_caption", "NULL"),
-                        "room_pic": room.get("hotel_room_type_picture", "NULL"),
-                        "description": "NULL",
+                        "room_id": room.get("hotel_room_type_id", None),
+                        "title": room.get("standard_caption", None),
+                        "title_lang": room.get("standard_caption", None),
+                        "room_pic": room.get("hotel_room_type_picture", None),
+                        "description": None,
                         "max_allowed": {
                             "total": int(room.get("max_occupancy_per_room", 0)),
                             "adults": int(room.get("max_occupancy_per_room", 0)),
-                            "children": "NULL",
-                            "infant": room.get("max_infant_in_room", "NULL"),
+                            "children": None,
+                            "infant": room.get("max_infant_in_room", None),
                         },
-                        "no_of_room": room.get("no_of_room", "NULL"),
+                        "no_of_room": room.get("no_of_room", None),
                         "room_size": room.get("size_of_room", 0),
                         "bed_type": [
                             {
-                                "description": room.get("bed_type", "NULL"),
+                                "description": room.get("bed_type", None),
                                 "configuration": [],
-                                "max_extrabeds": room.get("max_extrabeds", "NULL"),
+                                "max_extrabeds": room.get("max_extrabeds", None),
                             }
                         ],
-                        "shared_bathroom": room.get("shared_bathroom", "NULL"),
+                        "shared_bathroom": room.get("shared_bathroom", None),
                     }
                     specific_data["room_type"].append(room_data)
                 else:
@@ -213,9 +213,9 @@ def get_xml_to_json_data_for_agoda(api_key, hotel_id):
                 for facility in facilities_types:
                     if isinstance(facility, dict):
                         facilities_data = {
-                            "type": facility.get("property_name", "NULL"),
-                            "title": facility.get("property_group_description", "NULL"),
-                            "icon": facility.get("property_translated_name", "NULL")
+                            "type": facility.get("property_name", None),
+                            "title": facility.get("property_group_description", None),
+                            "icon": facility.get("property_translated_name", None)
                         }
                         specific_data["facilities"].append(facilities_data)
                     else:
@@ -229,9 +229,9 @@ def get_xml_to_json_data_for_agoda(api_key, hotel_id):
             for photo in hotel_photo_data:
                 if isinstance(photo, dict):
                     hotel_photo_data = {  
-                        "picture_id": photo.get("picture_id", "NULL"),
-                        "title": photo.get("caption", "NULL"),
-                        "url": photo.get("URL", "NULL")
+                        "picture_id": photo.get("picture_id", None),
+                        "title": photo.get("caption", None),
+                        "url": photo.get("URL", None)
                     }
                     specific_data["hotel_photo"].append(hotel_photo_data)
                 else:

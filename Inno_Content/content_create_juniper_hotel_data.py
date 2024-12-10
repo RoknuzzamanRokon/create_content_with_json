@@ -198,7 +198,7 @@ def create_content_with_api(hotel_code):
         address_line_1 = hotel_content.get("Address", {}).get("Address", None)
         hotel_name = hotel_content['HotelName']
         address_query = f"{address_line_1}, {hotel_name}"
-        google_map_site_link = f"http://maps.google.com/maps?q={address_query.replace(' ', '+')}" if address_line_1 != "NULL" else "NULL"
+        google_map_site_link = f"http://maps.google.com/maps?q={address_query.replace(' ', '+')}" if address_line_1 != None else None
 
         # Facility entries
         facility_entries = []
@@ -261,9 +261,9 @@ def create_content_with_api(hotel_code):
             "brand_text": None,
             "property_type": None,
             "star_rating": None,
-            "chain": "NULL",
-            "brand": "NULL",
-            "logo": "NULL",
+            "chain": None,
+            "brand": None,
+            "logo": None,
             "primary_photo": primary_file_name,
             "review_rating": {
                 "source": None,
@@ -295,7 +295,7 @@ def create_content_with_api(hotel_code):
                     "children_stay_free": None,
                     "min_guest_age": None
                 },
-                "nationality_restrictions": "NULL",
+                "nationality_restrictions": None,
             },
             "address": {
                 "latitude": hotel_content.get("Address", {}).get("Latitude", None),

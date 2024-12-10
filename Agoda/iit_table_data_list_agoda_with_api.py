@@ -50,7 +50,7 @@ def update_data_for_innova_table(hotel_id):
             if isinstance(facilities, list):
                 for facility in facilities:
                     if isinstance(facility, dict):
-                        facilities_list.append(facility.get("property_group_description", "NULL"))
+                        facilities_list.append(facility.get("property_group_description", None))
         
         # Build amenities dictionary safely
         amenities = {}
@@ -63,22 +63,22 @@ def update_data_for_innova_table(hotel_id):
 
         data = {
             'SupplierCode': 'Agoda',
-            'HotelId': hotel_data.get("hotel_id", "NULL"),
-            'City': hotel_feed_full.get("addresses", {}).get("address", [{}])[0].get("city", "NULL"),
-            'PostCode': hotel_feed_full.get("addresses", {}).get("address", [{}])[0].get("postal_code", "NULL"),
-            'Country': hotel_feed_full.get("addresses", {}).get("address", [{}])[0].get("country", "NULL"),
+            'HotelId': hotel_data.get("hotel_id", None),
+            'City': hotel_feed_full.get("addresses", {}).get("address", [{}])[0].get("city", None),
+            'PostCode': hotel_feed_full.get("addresses", {}).get("address", [{}])[0].get("postal_code", None),
+            'Country': hotel_feed_full.get("addresses", {}).get("address", [{}])[0].get("country", None),
             'CountryCode': None,
-            'HotelName': hotel_data.get("hotel_name", "NULL"),
-            'Latitude': hotel_data.get("latitude", "NULL"),
-            'Longitude': hotel_data.get("longitude", "NULL"),
+            'HotelName': hotel_data.get("hotel_name", None),
+            'Latitude': hotel_data.get("latitude", None),
+            'Longitude': hotel_data.get("longitude", None),
             'PrimaryPhoto': None,
-            'AddressLine1': hotel_feed_full.get("addresses", {}).get("address", [{}])[0].get("address_line_1", "NULL"), 
-            'AddressLine2': hotel_feed_full.get("addresses", {}).get("address", [{}])[0].get("address_line_2", "NULL"),
-            'HotelReview': hotel_data.get("number_of_reviews", "NULL"),
+            'AddressLine1': hotel_feed_full.get("addresses", {}).get("address", [{}])[0].get("address_line_1", None), 
+            'AddressLine2': hotel_feed_full.get("addresses", {}).get("address", [{}])[0].get("address_line_2", None),
+            'HotelReview': hotel_data.get("number_of_reviews", None),
             'Website': None,
             'ContactNumber': None,
             'FaxNumber': None,
-            'HotelStar': hotel_data.get("star_rating", "NULL"),
+            'HotelStar': hotel_data.get("star_rating", None),
         }
 
         data.update(amenities)

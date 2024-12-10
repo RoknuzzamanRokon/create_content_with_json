@@ -158,7 +158,7 @@ def updata_data_in_innova_table(hotel_id):
         google_map_site_link = (
             f"http://maps.google.com/maps?q={full_address.replace(' ', '+')}"
             if full_address
-            else "NULL"
+            else None
         )
 
 
@@ -185,7 +185,7 @@ def updata_data_in_innova_table(hotel_id):
                 # Extract the Description attribute as title
                 title = picture.attrib.get("Description", "")
                 photo_data.append({
-                    "picture_id": "NULL",
+                    "picture_id": None,
                     "title": title,
                     "url": url
                 })
@@ -231,7 +231,7 @@ def updata_data_in_innova_table(hotel_id):
                     rm_facilities_json.append({
                         "type": facility,
                         "title": facility,
-                        "icon": "NULL"
+                        "icon": None
                     })
             # print(rm_facilities_json)
 
@@ -309,7 +309,7 @@ def updata_data_in_innova_table(hotel_id):
                     "children_stay_free": None,
                     "min_guest_age": None
                 },
-                "nationality_restrictions": "NULL",
+                "nationality_restrictions": None,
             },
             "address": {
                 "latitude": result.hotel_latitude or None,

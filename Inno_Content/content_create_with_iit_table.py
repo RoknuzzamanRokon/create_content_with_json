@@ -50,7 +50,7 @@ def create_content_follow_hotel_id(hotel_id):
 
             # ast_test = ast.literal_eval(hotel_data.get("ModifiedOn","{}"))
 
-            # id = df.get("Id", "NULL")
+            # id = df.get("Id", None)
 
             createdAt = datetime.now()
             createdAt_str = createdAt.strftime("%Y-%m-%dT%H:%M:%S")
@@ -62,13 +62,13 @@ def create_content_follow_hotel_id(hotel_id):
             address_line_1 = hotel_data.get("AddressLine1", None)
             address_line_2 = hotel_data.get("AddressLine2", None)
             hotel_name = hotel_data.get("HotelName", None)
-            # city = hotel_data.get("City", "NULL")
-            # postal_code = hotel_data.get("ZipCode", "NULL")
-            # state = hotel_info.get("address", {}).get("stateName", "NULL")
-            # country = hotel_data.get("CountryName", "NULL")
+            # city = hotel_data.get("City", None)
+            # postal_code = hotel_data.get("ZipCode", None)
+            # state = hotel_info.get("address", {}).get("stateName", None)
+            # country = hotel_data.get("CountryName", None)
 
             address_query = f"{address_line_1}, {address_line_2}, {hotel_name}"
-            google_map_site_link = f"http://maps.google.com/maps?q={address_query.replace(' ', '+')}" if address_line_1 != "NULL" else "NULL"
+            google_map_site_link = f"http://maps.google.com/maps?q={address_query.replace(' ', '+')}" if address_line_1 != None else None
 
 
             # Hotel amenities here.

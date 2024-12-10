@@ -138,15 +138,15 @@ class HotelContentEAN:
 
 
         # Genarate data for google links.
-        address_line_1 = hotel_data.get("address", {}).get("line_1", "NULL")
-        address_line_2 = hotel_data.get("address", {}).get("line_2", "NULL")
-        hotel_name = hotel_data.get("name", "NUll")
-        city = hotel_data.get("address", {}).get("city", "NULL")
-        postal_code = hotel_data.get("address", {}).get("postal_code", "NULL")
-        country = hotel_data.get("address", {}).get("country_code", "NULL")
+        address_line_1 = hotel_data.get("address", {}).get("line_1", None)
+        address_line_2 = hotel_data.get("address", {}).get("line_2", None)
+        hotel_name = hotel_data.get("name", None)
+        city = hotel_data.get("address", {}).get("city", None)
+        postal_code = hotel_data.get("address", {}).get("postal_code", None)
+        country = hotel_data.get("address", {}).get("country_code", None)
 
         address_query = f"{address_line_1}, {address_line_2}, {hotel_name}, {city}, {postal_code}, {country}"
-        google_map_site_link = f"http://maps.google.com/maps?q={address_query.replace(' ', '+')}" if address_line_1 != "NULL" else "NULL"
+        google_map_site_link = f"http://maps.google.com/maps?q={address_query.replace(' ', '+')}" if address_line_1 != None else None
 
 
 
@@ -265,93 +265,93 @@ class HotelContentEAN:
         specific_data = {
             "created": createdAt_str,
             "timestamp": timeStamp,
-            "hotel_id": hotel_data.get("property_id", "NUll"),
-            "name": hotel_data.get("name", "NUll"),
-            "name_local": hotel_data.get("name", "NUll"),
-            "hotel_formerly_name": hotel_data.get("name", "NUll"),
-            "destination_code": "NULL",
-            "country_code":  hotel_data.get("address", {}).get("country_code", "NULL"),
-            "brand_text": "NULL",
-            "property_type": hotel_data.get("category", {}).get("name", "NULL"),
-            "star_rating": hotel_data.get("ratings", {}).get("property", {}).get("rating", "NULL"),
-            "chain": hotel_data.get("chain", {}).get("name", "NULL"),
-            "brand": hotel_data.get("brand", {}).get("name", "NULL"),
-            "logo": "NULL",
+            "hotel_id": hotel_data.get("property_id", None),
+            "name": hotel_data.get("name", None),
+            "name_local": hotel_data.get("name", None),
+            "hotel_formerly_name": hotel_data.get("name", None),
+            "destination_code": None,
+            "country_code":  hotel_data.get("address", {}).get("country_code", None),
+            "brand_text": None,
+            "property_type": hotel_data.get("category", {}).get("name", None),
+            "star_rating": hotel_data.get("ratings", {}).get("property", {}).get("rating", None),
+            "chain": hotel_data.get("chain", {}).get("name", None),
+            "brand": hotel_data.get("brand", {}).get("name", None),
+            "logo": None,
             "primary_photo": primary_photo,
             
             "review_rating": {
                     "source": "Expedia.com",
-                    "number_of_reviews": hotel_data.get("ratings", {}).get("guest", {}).get("count", "NULL"),
-                    "rating_average": hotel_data.get("rank", "NULL"),
-                    "popularity_score": hotel_data.get("ratings", {}).get("guest", {}).get("overall", "NULL")
+                    "number_of_reviews": hotel_data.get("ratings", {}).get("guest", {}).get("count", None),
+                    "rating_average": hotel_data.get("rank", None),
+                    "popularity_score": hotel_data.get("ratings", {}).get("guest", {}).get("overall", None)
                 },
             "policies": {
                 "checkin": {
-                    "begin_time": hotel_data.get("checkin", {}).get("begin_time", "NULL"),
-                    "end_time": hotel_data.get("checkin", {}).get("end_time", "NULL"),
-                    "instructions": hotel_data.get("checkin", {}).get("instructions", "NULL"),
-                    "special_instructions": hotel_data.get("checkin", {}).get("special_instructions", "NULL"),
-                    "min_age":  hotel_data.get("checkin", {}).get("min_age", "NULL"),
+                    "begin_time": hotel_data.get("checkin", {}).get("begin_time", None),
+                    "end_time": hotel_data.get("checkin", {}).get("end_time", None),
+                    "instructions": hotel_data.get("checkin", {}).get("instructions", None),
+                    "special_instructions": hotel_data.get("checkin", {}).get("special_instructions", None),
+                    "min_age":  hotel_data.get("checkin", {}).get("min_age", None),
                     },
                 "checkout": {
-                    "time": hotel_data.get("checkout", {}).get("time", "NULL"),
+                    "time": hotel_data.get("checkout", {}).get("time", None),
                     },
                 "fees": {
-                    "optional": hotel_data.get("fees", {}).get("optional", "NULL"),
-                    "mandatory": hotel_data.get("fees", {}).get("mandatory", "NULL"),
+                    "optional": hotel_data.get("fees", {}).get("optional", None),
+                    "mandatory": hotel_data.get("fees", {}).get("mandatory", None),
                     },
-                "know_before_you_go": hotel_data.get("policies", {}).get("know_before_you_go", "NULL"),
+                "know_before_you_go": hotel_data.get("policies", {}).get("know_before_you_go", None),
                 "pets": pets_data,
-                "remark": "NULL",
+                "remark": None,
                 "child_and_extra_bed_policy": {
-                    "infant_age": "NULL",
-                    "children_age_from": "NULL",
-                    "children_age_to": "NULL",
-                    "children_stay_free": "NULL",
-                    "min_guest_age": "NULL"
+                    "infant_age": None,
+                    "children_age_from": None,
+                    "children_age_to": None,
+                    "children_stay_free": None,
+                    "min_guest_age": None
                     },
-                "nationality_restrictions": "NULL",
+                "nationality_restrictions": None,
                 },
             "address": {
-                "latitude": hotel_data.get("location", {}).get("coordinates", {}).get("latitude", "NULL"),
-                "longitude": hotel_data.get("location", {}).get("coordinates", {}).get("longitude", "NULL"),
-                "address_line_1": hotel_data.get("address", {}).get("line_1", "NULL"),
-                "address_line_2": hotel_data.get("address", {}).get("line_2", "NULL"),
-                "city": hotel_data.get("address", {}).get("city", "NULL"),
-                "state": hotel_data.get("address", {}).get("state_province_name", "NULL"),
-                "country": hotel_data.get("address", {}).get("country_code", "NULL"),
-                "country_code": hotel_data.get("address", {}).get("country_code", "NULL"),
-                "postal_code": hotel_data.get("address", {}).get("postal_code", "NULL"),
-                "full_address": f"{hotel_data.get("address", {}).get("line_1", "NULL")}, {hotel_data.get("address", {}).get("line_2", "NULL")}",
+                "latitude": hotel_data.get("location", {}).get("coordinates", {}).get("latitude", None),
+                "longitude": hotel_data.get("location", {}).get("coordinates", {}).get("longitude", None),
+                "address_line_1": hotel_data.get("address", {}).get("line_1", None),
+                "address_line_2": hotel_data.get("address", {}).get("line_2", None),
+                "city": hotel_data.get("address", {}).get("city", None),
+                "state": hotel_data.get("address", {}).get("state_province_name", None),
+                "country": hotel_data.get("address", {}).get("country_code", None),
+                "country_code": hotel_data.get("address", {}).get("country_code", None),
+                "postal_code": hotel_data.get("address", {}).get("postal_code", None),
+                "full_address": f"{hotel_data.get("address", {}).get("line_1", None)}, {hotel_data.get("address", {}).get("line_2", None)}",
                 "google_map_site_link": google_map_site_link,
                 "local_lang": {
-                    "latitude": hotel_data.get("location", {}).get("coordinates", {}).get("latitude", "NULL"),
-                    "longitude": hotel_data.get("location", {}).get("coordinates", {}).get("longitude", "NULL"),
-                    "address_line_1": hotel_data.get("address", {}).get("line_1", "NULL"),
-                    "address_line_2": hotel_data.get("address", {}).get("line_2", "NULL"),
-                    "city": hotel_data.get("address", {}).get("city", "NULL"),
-                    "state": hotel_data.get("address", {}).get("state_province_name", "NULL"),
-                    "country": hotel_data.get("address", {}).get("country_code", "NULL"),
-                    "country_code": hotel_data.get("address", {}).get("country_code", "NULL"),
-                    "postal_code": hotel_data.get("address", {}).get("postal_code", "NULL"),
-                    "full_address": f"{hotel_data.get("address", {}).get("line_1", "NULL")}, {hotel_data.get("address", {}).get("line_2", "NULL")}",
+                    "latitude": hotel_data.get("location", {}).get("coordinates", {}).get("latitude", None),
+                    "longitude": hotel_data.get("location", {}).get("coordinates", {}).get("longitude", None),
+                    "address_line_1": hotel_data.get("address", {}).get("line_1", None),
+                    "address_line_2": hotel_data.get("address", {}).get("line_2", None),
+                    "city": hotel_data.get("address", {}).get("city", None),
+                    "state": hotel_data.get("address", {}).get("state_province_name", None),
+                    "country": hotel_data.get("address", {}).get("country_code", None),
+                    "country_code": hotel_data.get("address", {}).get("country_code", None),
+                    "postal_code": hotel_data.get("address", {}).get("postal_code", None),
+                    "full_address": f"{hotel_data.get("address", {}).get("line_1", None)}, {hotel_data.get("address", {}).get("line_2", None)}",
                     "google_map_site_link": google_map_site_link,
                     },
                 "mapping": {
-                    "continent_id": "NULL",
-                    "country_id": hotel_data.get("address", {}).get("country_code", "NULL"),
-                    "province_id": "NULL",
-                    "state_id": "NULL",
-                    "city_id": "NULL",
-                    "area_id": "NULL"
+                    "continent_id": None,
+                    "country_id": hotel_data.get("address", {}).get("country_code", None),
+                    "province_id": None,
+                    "state_id": None,
+                    "city_id": None,
+                    "area_id": None
                     }
                 },
 
             "contacts": {
-                "phone_numbers": [hotel_data.get("phone", "NULL")],
-                "fax": hotel_data.get("fax", "NULL"),
-                "email_address": hotel_data.get("email", "NULL"),
-                "website": hotel_data.get("website", "NULL"),
+                "phone_numbers": [hotel_data.get("phone", None)],
+                "fax": hotel_data.get("fax", None),
+                "email_address": hotel_data.get("email", None),
+                "website": hotel_data.get("website", None),
                 },
             
             "descriptions": descriptions_data,
@@ -363,32 +363,32 @@ class HotelContentEAN:
 
             "point_of_interests": [
                 {
-                "code": "NULL",
-                "name": "NULL"
+                "code": None,
+                "name": None
                 }
             ],
             "nearest_airports": [
                 {
-                "code": "NULL",
-                "name": "NULL"
+                "code": None,
+                "name": None
                 }
             ],
             "train_stations": [
                 {
-                "code": "NULL",
-                "name": "NULL"
+                "code": None,
+                "name": None
                 }
             ], 
             "connected_locations": [
                 {
-                "code": "NULL",
-                "name": "NULL"
+                "code": None,
+                "name": None
                 },
             ],
             "stadiums": [
                 {
-                "code": "NULL",
-                "name": "NULL"
+                "code": None,
+                "name": None
                 }
             ]
                 

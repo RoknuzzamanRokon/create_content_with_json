@@ -159,9 +159,9 @@ def create_content_with_api(hotel_code):
         # specific_data['brand_text'] = hotel_content['HotelChain']['Name']
         # specific_data['property_type'] = hotel_content['HotelCategory']['@Type']
         # specific_data['star_rating'] = hotel_content['HotelCategory']['#text']
-        # specific_data['chain'] = "NULL"
-        # specific_data['brand'] = "NULL"
-        # specific_data['logo'] = "NULL"
+        # specific_data['chain'] = None
+        # specific_data['brand'] = None
+        # specific_data['logo'] = None
         # primary_image = hotel_content.get('Images', {}).get('Image', [])[0]
         # specific_data['primary_photo'] = primary_image.get('@FileName', 'N/A')
                 
@@ -197,7 +197,7 @@ def create_content_with_api(hotel_code):
         address_line_1 = hotel_content.get("Address", {}).get("Address", None)
         hotel_name = hotel_content['HotelName']
         address_query = f"{address_line_1}, {hotel_name}"
-        google_map_site_link = f"http://maps.google.com/maps?q={address_query.replace(' ', '+')}" if address_line_1 != "NULL" else "NULL"
+        google_map_site_link = f"http://maps.google.com/maps?q={address_query.replace(' ', '+')}" if address_line_1 != None else None
 
 
         # Facilitys area here.
@@ -265,9 +265,9 @@ def create_content_with_api(hotel_code):
             "brand_text": None,
             "property_type": None,
             "star_rating": hotel_content.get('HotelCategory', {}).get('#text', None),
-            "chain": "NULL",
-            "brand": "NULL",
-            "logo": "NULL",
+            "chain": None,
+            "brand": None,
+            "logo": None,
             "primary_photo": primary_file_name,
             "review_rating": {
                 "source": None,
@@ -299,7 +299,7 @@ def create_content_with_api(hotel_code):
                     "children_stay_free": None,
                     "min_guest_age": None
                 },
-                "nationality_restrictions": "NULL",
+                "nationality_restrictions": None,
             },
             "address": {
                 "latitude": hotel_content.get("Address", {}).get("Latitude", None),
