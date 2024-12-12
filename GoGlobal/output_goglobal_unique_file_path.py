@@ -15,5 +15,5 @@ unique_to_file2 = file1_data - file2_data
 with open(output, 'w') as file3:
     file3.write('\n'.join(unique_to_file2))
 
-print(f"Unique items writen to {output}")
+print(f"Unique items writen to--------- {output}")
 

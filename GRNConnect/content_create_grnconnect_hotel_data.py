@@ -303,6 +303,9 @@ class GRNConnectAPI:
 
 
 
+
+
+
 def get_provider_hotel_id_list(engine, table, providerFamily):
     query = f"SELECT DISTINCT ProviderHotelId FROM {table} WHERE ProviderFamily = '{providerFamily}';"
     df = pd.read_sql(query, engine)
@@ -356,10 +359,11 @@ def append_to_cannot_find_file(file_path, systemid):
 
 
 
+
+
+
+
 def save_json_files_follow_systemId(folder_path, tracking_file_path, cannot_find_file_path, engine):
-    """
-    Save JSON files for each SystemId and keep the tracking file updated.
-    """
     if not os.path.exists(folder_path):
         os.makedirs(folder_path)
 
@@ -381,6 +385,8 @@ def save_json_files_follow_systemId(folder_path, tracking_file_path, cannot_find
 
         try:
             if os.path.exists(file_path):
+                remaining_ids.remove(systemid)
+                write_tracking_file(tracking_file_path, remaining_ids)
                 print(f"File {file_name} already exists. Skipping...........................Ok")
                 continue
 
@@ -404,6 +410,8 @@ def save_json_files_follow_systemId(folder_path, tracking_file_path, cannot_find
             write_tracking_file(tracking_file_path, remaining_ids)
 
         except Exception as e:
+            remaining_ids.remove(systemid)
+            write_tracking_file(tracking_file_path, remaining_ids)
             print(f"Error processing SystemId {systemid}: {e}")
             continue
 
@@ -414,9 +422,14 @@ def save_json_files_follow_systemId(folder_path, tracking_file_path, cannot_find
         write_tracking_file(tracking_file_path, updated_ids)
         print(f"Updated tracking file, removed IDs in 'Cannot find any data' list.")
     except Exception as e:
+        remaining_ids.remove(systemid)
+        write_tracking_file(tracking_file_path, remaining_ids)
         print(f"Error updating tracking file: {e}")
 
-folder_path = '../HotelInfo/GRNConnect'
+
+# 'D:/content_for_
+# hotel_json/HotelInfo/TBO'
+folder_path = 'D:/content_for_hotel_json/HotelInfo/GRNConnect'
 tracking_file_path = 'tracking_file_for_GRNConnect_content_create.txt'
 cannot_find_file_path = 'cannot_find_data_list.txt'
 

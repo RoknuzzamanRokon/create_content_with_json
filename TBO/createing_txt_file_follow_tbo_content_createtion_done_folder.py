@@ -12,7 +12,7 @@ def list_json_file(directory, output_file):
         print(f"An error occurred: {e}")
 
 
-directory = "D:/hotels_content_to_create_json_file/HotelInfo/TBO"
+directory = "D:/content_for_hotel_json/HotelInfo/TBO"
 file_path = "tbo_done_content_creations_tracking_file.txt"
 
 list_json_file(directory=directory, output_file=file_path)

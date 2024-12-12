@@ -20,7 +20,7 @@ table_name = Table("innova_hotels_main", metadata, autoload_with=local_engine)
 
 
 def get_data_from_json_file(file_name):
-    folder_path = "D:/hotels_content_to_create_json_file/HotelInfo/GoGlobal"
+    folder_path = "D:/content_for_hotel_json/HotelInfo/GoGlobal"
     file_path = os.path.join(folder_path, file_name)
 
     if not os.path.join(folder_path, file_name):
@@ -105,7 +105,7 @@ def insert_data_to_inno_table_with_tracking(engine, table, tracking_file_path):
     print(f"Tracking IDs loaded: {len(tracking_ids)}")
 
     if not tracking_ids:
-        directory = "D:/hotels_content_to_create_json_file/HotelInfo/GoGlobal"
+        directory = "D:/content_for_hotel_json/HotelInfo/GoGlobal"
         file_path = "goglobal_hotel_id_lsit.txt"
         hotel_list_id = get_hotel_id_list(directory=directory, output_file=file_path)
         write_tracking_ids(tracking_file_path, hotel_list_id)

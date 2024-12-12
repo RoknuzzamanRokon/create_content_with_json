@@ -539,6 +539,8 @@ def save_json_files_follow_systemId(folder_path, tracking_file_path, engine):
 
         try:
             if os.path.exists(file_path):
+                remaining_ids.remove(systemid)
+                write_tracking_file(tracking_file_path, remaining_ids)
                 print(f"File {file_name} already exists. Skipping...........................Ok")
                 continue
 
@@ -565,12 +567,15 @@ def save_json_files_follow_systemId(folder_path, tracking_file_path, engine):
             write_tracking_file(tracking_file_path, remaining_ids)
 
         except Exception as e:
+            remaining_ids.remove(systemid)
+            write_tracking_file(tracking_file_path, remaining_ids)
             print(f"Error processing SystemId {systemid}: {e}")
             continue
 
 
 
-folder_path = '../HotelInfo/TBO'
+# folder_path = '../HotelInfo/TBO'
+folder_path = 'D:/content_for_hotel_json/HotelInfo/TBO'
 tracking_file_path = 'tracking_file_for_tbo_content_create.txt'
 # table = paximum_table
 # engine = local_engine

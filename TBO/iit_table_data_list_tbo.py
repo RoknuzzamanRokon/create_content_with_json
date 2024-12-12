@@ -3,6 +3,7 @@ from sqlalchemy.orm import sessionmaker
 import pandas as pd
 import json
 import os
+import random
 from dotenv import load_dotenv
 
 # Load environment variables
@@ -18,9 +19,8 @@ session = Session()
 table = Table("innova_hotels_main", metadata, autoload_with=engine)
 
 # Constants
-JSON_FOLDER = "D:/hotels_content_to_create_json_file/HotelInfo/TBO"
+JSON_FOLDER = "D:/content_for_hotel_json/HotelInfo/TBO"
 TRACKING_FILE = "tracking_file_for_upload_data_in_iit_table.txt"
-
 
 def load_json(file_name):
     """Load a JSON file and return its data."""
@@ -34,38 +34,32 @@ def load_json(file_name):
     except json.JSONDecodeError as e:
         raise ValueError(f"Error decoding JSON from file '{file_name}.json': {e}")
 
-
 def extract_hotel_data(hotel_id):
     """Extract hotel data from the JSON file and prepare it for insertion."""
     try:
         hotel_data = load_json(hotel_id)
         facilities = hotel_data.get("facilities", [])
 
-        if hotel_data.get("contacts", {}).get("fax") is None:
-            print(f"Skipping Hotel ID {hotel_id}: Missing fax number.")
-            return None
-
         data = {
             'SupplierCode': 'TBO',
-            'HotelId': hotel_data.get("hotel_id"),
-            'City': hotel_data.get("address", {}).get("city"),
-            'PostCode': hotel_data.get("address", {}).get("postal_code"),
-            'Country': hotel_data.get("address", {}).get("country"),
-            'CountryCode': hotel_data.get("country_code"),
-            'HotelName': hotel_data.get("name"),
-            'Latitude': hotel_data.get("address", {}).get("latitude"),
-            'Longitude': hotel_data.get("address", {}).get("longitude"),
-            'PrimaryPhoto': hotel_data.get("primary_photo"),
-            'AddressLine1': hotel_data.get("address", {}).get("address_line_1"),
-            'AddressLine2': hotel_data.get("address", {}).get("address_line_2"),
-            'HotelReview': hotel_data.get("review_rating", {}).get("number_of_reviews"),
-            'Website': hotel_data.get("contacts", {}).get("website"),
-            'ContactNumber': hotel_data.get("contacts", {}).get("phone_numbers", [None])[0],
-            'FaxNumber': hotel_data.get("contacts", {}).get("fax"),
-            'HotelStar': hotel_data.get("star_rating"),
+            'HotelId': hotel_data.get("hotel_id") or None,
+            'City': hotel_data.get("address", {}).get("city") or None,
+            'PostCode': hotel_data.get("address", {}).get("postal_code") or None,
+            'Country': hotel_data.get("address", {}).get("country") or None,
+            'CountryCode': hotel_data.get("country_code") or None,
+            'HotelName': hotel_data.get("name") or None,
+            'Latitude': hotel_data.get("address", {}).get("latitude") or None,
+            'Longitude': hotel_data.get("address", {}).get("longitude") or None,
+            'PrimaryPhoto': hotel_data.get("primary_photo") or None,
+            'AddressLine1': hotel_data.get("address", {}).get("address_line_1") or None,
+            'AddressLine2': hotel_data.get("address", {}).get("address_line_2") or None,
+            'HotelReview': hotel_data.get("review_rating", {}).get("number_of_reviews") or None,
+            'Website': hotel_data.get("contacts", {}).get("website") or None,
+            'ContactNumber': hotel_data.get("contacts", {}).get("phone_numbers") or None,
+            'FaxNumber': hotel_data.get("contacts", {}).get("fax") or "NULL",
+            'HotelStar': hotel_data.get("star_rating") or None,
         }
 
-        # Add amenities
         for idx in range(1, 6):
             data[f"Amenities_{idx}"] = facilities[idx - 1].get("title") if len(facilities) >= idx else None
 
@@ -74,9 +68,7 @@ def extract_hotel_data(hotel_id):
         print(f"Error processing hotel ID {hotel_id}: {e}")
         return None
 
-
 def manage_tracking_file(action, ids=None):
-    """Read or write to the tracking file."""
     if action == "read":
         if os.path.exists(TRACKING_FILE):
             with open(TRACKING_FILE, "r", encoding="utf-8") as file:
@@ -88,30 +80,25 @@ def manage_tracking_file(action, ids=None):
     else:
         raise ValueError("Invalid action or missing IDs for tracking file management.")
 
-
 def insert_hotel_data(hotel_data):
-    """Insert hotel data into the database."""
     try:
-        with engine.connect() as conn:
-            conn.execute(table.insert(), [hotel_data])
+        with engine.connect().execution_options(isolation_level="AUTOCOMMIT") as conn:
+            conn.execute(table.insert().values(hotel_data))
             print(f"Inserted data for Hotel ID: {hotel_data['HotelId']}")
     except Exception as e:
         print(f"Error inserting data for Hotel ID {hotel_data['HotelId']}: {e}")
 
-
 def process_hotels():
-    """Main processing logic for hotel data insertion."""
     tracking_ids = manage_tracking_file("read")
 
     if not tracking_ids:
-        # Generate list of JSON files if tracking file is empty
         tracking_ids = [file[:-5] for file in os.listdir(JSON_FOLDER) if file.endswith(".json")]
         manage_tracking_file("write", tracking_ids)
         print(f"Tracking file initialized with {len(tracking_ids)} hotel IDs.")
 
-    for hotel_id in tracking_ids.copy():
+    while tracking_ids:
+        hotel_id = random.choice(tracking_ids) 
         try:
-            # Check if data already exists in the database
             with engine.connect() as conn:
                 exists = conn.execute(text(
                     f"SELECT COUNT(1) FROM {table.name} WHERE HotelId = :hotel_id AND SupplierCode = 'TBO'"
@@ -135,7 +122,6 @@ def process_hotels():
             print(f"Error processing Hotel ID {hotel_id}: {e}")
 
     print("Hotel data processing completed.")
-
 
 if __name__ == "__main__":
     process_hotels()

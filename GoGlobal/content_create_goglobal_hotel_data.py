@@ -535,7 +535,7 @@ def save_json_files_follow_systemId(folder_path, tracking_file_path, table, engi
 
 
 
-folder_path = '../HotelInfo/GoGlobal'
+folder_path = "D:/content_for_hotel_json/HotelInfo/GoGlobal"
 tracking_file_path = 'tracking_file_for_goglobal_content_create.txt'
 
 
