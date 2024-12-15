@@ -14,11 +14,6 @@ logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(message)s",
 )
 
-DATABASE_URL = "mysql+pymysql://root:@localhost/csvdata01_02102024"
-engine = create_engine(DATABASE_URL)
-
-table_main = 'ratehawk'
-
 
 
 DATABASE_URL_LOCAL = "mysql+pymysql://root:@localhost/csvdata01_02102024"
@@ -353,4 +348,4 @@ def save_json_file_follow_hotelId(folder_path, supplier_name, chunk_size):
 
 supplier_name = 'ratehawk'
 folder_path = '../HotelInfo/Ratehawk'
-save_json_file_follow_hotelId(folder_path=folder_path, supplier_name=supplier_name, chunk_size=100)
+save_json_file_follow_hotelId(folder_path=folder_path, supplier_name=supplier_name, chunk_size=1000)
