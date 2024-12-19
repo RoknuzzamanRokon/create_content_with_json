@@ -1,7 +1,7 @@
 import json
 
-file1_path = "D:/hotels_content_to_create_json_file/TBO/tracking_file_for_tbo_content_create.txt"
-file2_path = "D:/hotels_content_to_create_json_file/TBO/tbo_done_content_creations_tracking_file.txt"
+file1_path = "D:/Rokon/hotels_content_to_create_json_file/TBO/tracking_file_for_tbo_content_create.txt"
+file2_path = "D:/Rokon/hotels_content_to_create_json_file/TBO/tbo_done_content_creations_tracking_file.txt"
 output = "final_tbo_content_file_path.txt"
 
 with open(file1_path, 'r') as file1:

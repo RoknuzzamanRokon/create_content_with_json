@@ -429,7 +429,7 @@ def save_json_files_follow_systemId(folder_path, tracking_file_path, cannot_find
 
 # 'D:/content_for_
 # hotel_json/HotelInfo/TBO'
-folder_path = 'D:/content_for_hotel_json/HotelInfo/GRNConnect'
+folder_path = 'D:/Rokon/content_for_hotel_json/HotelInfo/GRNConnect'
 tracking_file_path = 'tracking_file_for_GRNConnect_content_create.txt'
 cannot_find_file_path = 'cannot_find_data_list.txt'
 

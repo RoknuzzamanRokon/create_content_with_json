@@ -19,7 +19,7 @@ session = Session()
 table = Table("innova_hotels_main", metadata, autoload_with=engine)
 
 # Constants
-JSON_FOLDER = "D:/content_for_hotel_json/HotelInfo/TBO"
+JSON_FOLDER = "D:/Rokon/content_for_hotel_json/HotelInfo/TBO"
 TRACKING_FILE = "tracking_file_for_upload_data_in_iit_table.txt"
 
 def load_json(file_name):

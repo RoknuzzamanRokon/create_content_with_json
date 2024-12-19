@@ -12,7 +12,7 @@ def list_json_file(directory, output_file):
         print(f"An error occurred: {e}")
 
 
-directory = "D:/content_for_hotel_json/HotelInfo/GRNConnect"
+directory = 'D:/Rokon/content_for_hotel_json/HotelInfo/GRNConnect'
 file_path = "GRNConnect_done_content_creations_tracking_file.txt"
 
 list_json_file(directory=directory, output_file=file_path)

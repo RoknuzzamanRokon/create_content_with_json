@@ -87,7 +87,7 @@ def create_content_follow_hotel_id(hotel_id):
         # Process images and amenity groups
         hotel_data_list = []
         for row_dict in rows_with_image:
-            keys_to_extract_part2 = ["id", "images", "region", "amenity_groups"]
+            keys_to_extract_part2 = ["id", "images", "region", "amenity_groups", "description_struct"]
             filtered_row_dict_part2 = {key: row_dict.get(key, None) for key in keys_to_extract_part2}
 
             # Safely parse JSON fields
@@ -114,6 +114,17 @@ def create_content_follow_hotel_id(hotel_id):
                     "url": img.replace("t/{size}", "t/x500")
                 } for img in images
             ]
+
+            descriptions = row_dict.get("description_struct", [])
+            if descriptions:
+                formatted_descriptions = [
+                    {"title": item.get("title", "No Title"), "text": item.get("text", "No Description")}
+                    for item in descriptions
+                ]
+                filtered_row_dict_part2["description_struct"] = formatted_descriptions
+            else:
+                filtered_row_dict_part2["description_struct"] = []
+
 
             # Create hotel data dictionary
             specific_data = {
@@ -204,12 +215,7 @@ def create_content_follow_hotel_id(hotel_id):
                     "email_address": filtered_row_dict.get("email", None),
                     "website": None
                 },
-                "descriptions": [
-                    {
-                        "title": None,
-                        "text": None
-                    }
-                ],
+                "descriptions": filtered_row_dict_part2.get("description_struct", []),
                 "room_type": {
                     "room_id": None,
                     "title": None,
