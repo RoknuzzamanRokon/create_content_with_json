@@ -194,7 +194,7 @@ def update_data_in_innova_table(hotel_code):
         return None
 
 
-def insert_data_to_inno_table_with_tracking(engine, table, chunk_size, tracking_file_path):
+def insert_data_to_innova_table_with_tracking(engine, table, chunk_size, tracking_file_path):
     """
     Inserts data into the innova table in chunks, with tracking.
     """
@@ -252,5 +252,5 @@ def insert_data_to_inno_table_with_tracking(engine, table, chunk_size, tracking_
 
 
 # Call function to insert data
-insert_data_to_inno_table_with_tracking(engine=local_engine_L1, table=metadata_local_L1, chunk_size=10, tracking_file_path="tracking_file.txt")
+insert_data_to_innova_table_with_tracking(engine=local_engine_L1, table=metadata_local_L1, chunk_size=10, tracking_file_path="tracking_file.txt")
 sys.exit()
