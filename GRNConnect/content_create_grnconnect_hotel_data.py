@@ -52,7 +52,7 @@ class GRNConnectAPI:
         except Exception as e:
             return {"error": str(e)}
 
-    def hotel_genaral_data(self, hotel_code):
+    def hotel_general_data(self, hotel_code):
         endpoint = f"{self.base_url}/api/v3/hotels?hcode={hotel_code}&version=2.0"
         return self.fetch_data(endpoint)
         
@@ -62,10 +62,10 @@ class GRNConnectAPI:
 
     def iit_hotel_content(self, hotel_code):
         try:
-            genaral_data = self.hotel_genaral_data(hotel_code)
-            total = genaral_data.get("total", None)
+            general_data = self.hotel_general_data(hotel_code)
+            total = general_data.get("total", None)
             if total == 1:
-                hotel_data = genaral_data.get("hotels", [])[0]
+                hotel_data = general_data.get("hotels", [])[0]
                 
 
                 createdAt = datetime.now()
@@ -292,7 +292,7 @@ class GRNConnectAPI:
 
 # Example usage
 # hotel_code = "1492043"  
-# hotel_face_data = grnconnect.hotel_genaral_data(hotel_code)
+# hotel_face_data = grnconnect.hotel_general_data(hotel_code)
 # hotel_images = grnconnect.hotel_images(hotel_code)
 # content_main = grnconnect.iit_hotel_content(hotel_code)
 

@@ -10,7 +10,7 @@ with open(file1_path, 'r') as file1:
 with open(file2_path, 'r') as file2:
     file2_data = {line.strip().rstrip(',') for line in file2}
 
-unique_to_file2 = file1_data - file2_data
+unique_to_file2 = [item for item in file1_data if item not in file2_data]
 
 with open(output, 'w') as file3:
     file3.write('\n'.join(unique_to_file2))

@@ -42,22 +42,22 @@ def extract_hotel_data(hotel_id):
 
         data = {
             'SupplierCode': 'grnconnect',
-            'HotelId': hotel_data.get("hotel_id") or None,
-            'City': hotel_data.get("address", {}).get("city") or None,
-            'PostCode': hotel_data.get("address", {}).get("postal_code") or None,
-            'Country': hotel_data.get("address", {}).get("country") or None,
-            'CountryCode': hotel_data.get("country_code") or None,
-            'HotelName': hotel_data.get("name") or None,
-            'Latitude': hotel_data.get("address", {}).get("latitude") or None,
-            'Longitude': hotel_data.get("address", {}).get("longitude") or None,
-            'PrimaryPhoto': hotel_data.get("primary_photo") or None,
-            'AddressLine1': hotel_data.get("address", {}).get("address_line_1") or None,
-            'AddressLine2': hotel_data.get("address", {}).get("address_line_2") or None,
-            'HotelReview': hotel_data.get("review_rating", {}).get("number_of_reviews") or None,
-            'Website': hotel_data.get("contacts", {}).get("website") or None,
-            'ContactNumber': hotel_data.get("contacts", {}).get("phone_numbers") or None,
-            'FaxNumber': hotel_data.get("contacts", {}).get("fax") or "NULL",
-            'HotelStar': hotel_data.get("star_rating") or None,
+            'HotelId': hotel_data.get("hotel_id", "NULL"),
+            'City': hotel_data.get("address", {}).get("city", "NULL"),
+            'PostCode': hotel_data.get("address", {}).get("postal_code", "NULL"),
+            'Country': hotel_data.get("address", {}).get("country", "NULL"),
+            'CountryCode': hotel_data.get("country_code", "NULL"),
+            'HotelName': hotel_data.get("name", "NULL"),
+            'Latitude': hotel_data.get("address", {}).get("latitude", "NULL"),
+            'Longitude': hotel_data.get("address", {}).get("longitude", "NULL"),
+            'PrimaryPhoto': hotel_data.get("primary_photo", "NULL"),
+            'AddressLine1': hotel_data.get("address", {}).get("address_line_1", "NULL"),
+            'AddressLine2': hotel_data.get("address", {}).get("address_line_2", "NULL"),
+            'HotelReview': hotel_data.get("review_rating", {}).get("number_of_reviews", "NULL"),
+            'Website': hotel_data.get("contacts", {}).get("website", "NULL"),
+            'ContactNumber': hotel_data.get("contacts", {}).get("phone_numbers", "NULL"),
+            'FaxNumber': hotel_data.get("contacts", {}).get("fax", "NULL"), 
+            'HotelStar': hotel_data.get("star_rating", "NULL"),
         }
 
         for idx in range(1, 6):
@@ -69,6 +69,7 @@ def extract_hotel_data(hotel_id):
         return None
 
 def manage_tracking_file(action, ids=None):
+    """Manage the tracking file for hotel processing."""
     if action == "read":
         if os.path.exists(TRACKING_FILE):
             with open(TRACKING_FILE, "r", encoding="utf-8") as file:
@@ -81,47 +82,51 @@ def manage_tracking_file(action, ids=None):
         raise ValueError("Invalid action or missing IDs for tracking file management.")
 
 def insert_hotel_data(hotel_data):
+    """Insert hotel data into the database."""
     try:
+        # Ensure FaxNumber and other critical fields are not None
+        hotel_data['FaxNumber'] = hotel_data['FaxNumber'] or "Not Provided"
+        
         with engine.connect().execution_options(isolation_level="AUTOCOMMIT") as conn:
             conn.execute(table.insert().values(hotel_data))
-            print(f"Inserted data for Hotel ID: {hotel_data['HotelId']}")
+            # print(f"Inserted data for Hotel ID: {hotel_data['HotelId']}")
     except Exception as e:
         print(f"Error inserting data for Hotel ID {hotel_data['HotelId']}: {e}")
 
 def process_hotels():
     tracking_ids = manage_tracking_file("read")
 
-    if not tracking_ids:
-        tracking_ids = [file[:-5] for file in os.listdir(JSON_FOLDER) if file.endswith(".json")]
-        manage_tracking_file("write", tracking_ids)
-        print(f"Tracking file initialized with {len(tracking_ids)} hotel IDs.")
-
     while tracking_ids:
-        hotel_id = random.choice(tracking_ids) 
+        hotel_id = random.choice(tracking_ids)
         try:
+            # print(f"Processing Hotel ID: {hotel_id}")  
+            
             with engine.connect() as conn:
                 exists = conn.execute(text(
                     f"SELECT COUNT(1) FROM {table.name} WHERE HotelId = :hotel_id AND SupplierCode = 'grnconnect'"
                 ), {"hotel_id": hotel_id}).scalar()
+                # print(f"Hotel ID {hotel_id} exists in DB: {exists}")
 
             if exists:
                 print(f"Hotel ID {hotel_id} already exists. Skipping.")
                 tracking_ids.remove(hotel_id)
                 continue
 
-            # Extract and insert data
             hotel_data = extract_hotel_data(hotel_id)
+            # print(f"Extracted Data for {hotel_id}: {hotel_data}")
+            
             if hotel_data:
                 insert_hotel_data(hotel_data)
+                print(f"Successfully inserted Hotel ID {hotel_id}")
 
-            # Update tracking file
-            tracking_ids.remove(hotel_id)
-            manage_tracking_file("write", tracking_ids)
+                tracking_ids.remove(hotel_id)
+                manage_tracking_file("write", tracking_ids)
 
         except Exception as e:
             print(f"Error processing Hotel ID {hotel_id}: {e}")
 
     print("Hotel data processing completed.")
+
 
 if __name__ == "__main__":
     process_hotels()
