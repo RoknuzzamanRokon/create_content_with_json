@@ -33,35 +33,37 @@ innova_hotels_main = Table('innova_hotels_main', metadata_local_L1, autoload_wit
 
 
 
+def parse_json_field(field_value, default_value):
+    try:
+        return ast.literal_eval(field_value) if isinstance(field_value, str) else field_value
+    except (ValueError, SyntaxError):
+        return default_value
 
 def create_content_follow_hotel_id(hotel_id):
     try:
+        print(f"Starting data transfer for Hotel ID: {hotel_id}...")
         logging.info(f"Starting data transfer for Hotel ID: {hotel_id}...")
-        session_L2 = session_L2
-        local_engine_L2 = local_engine_L2
 
-        # Fetch data from the `ratehawk_without_image` table
+        # Fetch data from the ratehawk_without_image table
         query_without_image = (
             session_L2.query(ratehawk_without_image)
-            .filter(ratehawk_without_image.c.HotelId == hotel_id)
+            .filter(ratehawk_without_image.c.id == hotel_id)
             .statement
         )
         df_without_image = pd.read_sql(query_without_image, local_engine_L2)
         rows_without_image = df_without_image.astype(str).to_dict(orient="records")
 
         if not rows_without_image:
-            logging.warning(f"No data found in `ratehawk_without_image` for Hotel ID: {hotel_id}")
+            logging.warning(f"No data found in ratehawk_without_image for Hotel ID: {hotel_id}")
             return []
 
-        # Extract relevant fields from the first table
         filtered_data_without_image = rows_without_image[0]
         keys_to_extract = [
             "address", "id", "kind", "latitude", "longitude", "name",
-            "phone", "postal_code", "star_rating", "email"
+            "phone", "postal_code", "star_rating", "email", "region",
         ]
         filtered_row_dict = {key: filtered_data_without_image.get(key, None) for key in keys_to_extract}
 
-        # Generate timestamp and Google Maps link
         createdAt = datetime.now()
         createdAt_str = createdAt.strftime("%Y-%m-%dT%H:%M:%S")
         timeStamp = int(createdAt.timestamp())
@@ -72,38 +74,38 @@ def create_content_follow_hotel_id(hotel_id):
             if address_line_1 and hotel_name else None
         )
 
-        # Fetch data from the `ratehawk_with_image` table
+        # Fetch data from the ratehawk_with_image table
         query_with_image = (
             session_L2.query(ratehawk_with_image)
-            .filter(ratehawk_with_image.c.HotelId == hotel_id)
+            .filter(ratehawk_with_image.c.id == hotel_id)
             .statement
         )
         df_with_image = pd.read_sql(query_with_image, local_engine_L2)
         rows_with_image = df_with_image.astype(str).to_dict(orient="records")
 
         if not rows_with_image:
-            logging.warning(f"No data found in `ratehawk_with_image` for Hotel ID: {hotel_id}")
+            logging.warning(f"No data found in ratehawk_with_image for Hotel ID: {hotel_id}")
 
-        # Process images and amenity groups
         hotel_data_list = []
         for row_dict in rows_with_image:
-            keys_to_extract_part2 = ["id", "images", "region", "amenity_groups", "description_struct"]
+            keys_to_extract_part2 = ["id", "images", "amenity_groups", "description_struct"]
             filtered_row_dict_part2 = {key: row_dict.get(key, None) for key in keys_to_extract_part2}
 
-            # Safely parse JSON fields
-            region = parse_json_field(filtered_row_dict_part2.get("region", "{}"), {})
+            # Parse JSON fields
             amenity_groups = parse_json_field(filtered_row_dict_part2.get("amenity_groups", "[]"), [])
 
-            # Collect all amenities
             amenity_all = []
             for group in amenity_groups:
-                amenities = group.get("amenities", [])
-                for amenity in amenities:
-                    amenity_all.append({
-                        "type": amenity.get("type", None),
-                        "title": amenity.get("title", None),
-                        "icon": amenity.get("icon", None)
-                    })
+                if isinstance(group, dict):  
+                    amenities = group.get("amenities", [])
+                    if isinstance(amenities, list):  
+                        for amenity in amenities:
+                            if isinstance(amenity, dict): 
+                                amenity_all.append({
+                                    "type": amenity.get("type", None),
+                                    "title": amenity.get("title", None),
+                                    "icon": amenity.get("icon", None),
+                                })
 
             # Process hotel images
             images = parse_json_field(filtered_row_dict_part2.get("images", "[]"), [])
@@ -112,14 +114,14 @@ def create_content_follow_hotel_id(hotel_id):
                     "picture_id": None,
                     "title": None,
                     "url": img.replace("t/{size}", "t/x500")
-                } for img in images
+                } for img in images if isinstance(img, str)
             ]
 
-            descriptions = row_dict.get("description_struct", [])
-            if descriptions:
+            descriptions = parse_json_field(row_dict.get("description_struct", "[]"), [])
+            if isinstance(descriptions, list):
                 formatted_descriptions = [
                     {"title": item.get("title", "No Title"), "text": item.get("text", "No Description")}
-                    for item in descriptions
+                    for item in descriptions if isinstance(item, dict)
                 ]
                 filtered_row_dict_part2["description_struct"] = formatted_descriptions
             else:
@@ -135,7 +137,7 @@ def create_content_follow_hotel_id(hotel_id):
                 "name_local": filtered_row_dict.get("name", None),
                 "hotel_formerly_name": filtered_row_dict.get("name", None),
                 "destination_code": None,
-                "country_code": region.get("country_code", None),
+                "country_code": filtered_row_dict.get("region", {}).get("country_code", None) if isinstance(filtered_row_dict.get("region"), dict) else None,
                 "brand_text": None,
                 "property_type": filtered_row_dict.get("kind", None),
                 "star_rating": filtered_row_dict.get("star_rating", None),
@@ -180,10 +182,10 @@ def create_content_follow_hotel_id(hotel_id):
                     "longitude": filtered_row_dict.get("longitude", None),
                     "address_line_1": filtered_row_dict.get("address", None),
                     "address_line_2": None,
-                    "city": region.get("name", None),
+                    "city": filtered_row_dict.get("region", {}).get("name", None) if isinstance(filtered_row_dict.get("region"), dict) else None,
                     "state": None,
-                    "country": region.get("country_name", None),
-                    "country_code": region.get("country_code", None),
+                    "country": filtered_row_dict.get("region", {}).get("country_name", None) if isinstance(filtered_row_dict.get("region"), dict) else None,
+                    "country_code": filtered_row_dict.get("region", {}).get("country_code", None) if isinstance(filtered_row_dict.get("region"), dict) else None,
                     "postal_code": filtered_row_dict.get("postal_code", None),
                     "full_address": f"{filtered_row_dict.get('address')}",
                     "google_map_site_link": google_map_site_link,
@@ -192,10 +194,10 @@ def create_content_follow_hotel_id(hotel_id):
                         "longitude": filtered_row_dict.get("longitude", None),
                         "address_line_1": filtered_row_dict.get("address", None),
                         "address_line_2": None,
-                        "city": region.get("name", None),
+                        "city": filtered_row_dict.get("region", {}).get("name", None) if isinstance(filtered_row_dict.get("region"), dict) else None,
                         "state": None,
-                        "country": region.get("country_name", None),
-                        "country_code": region.get("country_code", None),
+                        "country": filtered_row_dict.get("region", {}).get("country_name", None) if isinstance(filtered_row_dict.get("region"), dict) else None,
+                        "country_code": filtered_row_dict.get("region", {}).get("country_code", None) if isinstance(filtered_row_dict.get("region"), dict) else None,
                         "postal_code": filtered_row_dict.get("postal_code", None),
                         "full_address": f"{filtered_row_dict.get('address')}",
                         "google_map_site_link": google_map_site_link,
@@ -252,7 +254,7 @@ def create_content_follow_hotel_id(hotel_id):
                 },
                 "amenities": amenity_all,
                 "facilities": None,
-                "hotel_photo": hotel_photos, 
+                "hotel_photo": hotel_photos,
                 "point_of_interests": [
                     {
                         "code": None,
@@ -270,7 +272,7 @@ def create_content_follow_hotel_id(hotel_id):
                         "code": None,
                         "name": None
                     }
-                ], 
+                ],
                 "connected_locations": [
                     {
                         "code": None,
@@ -292,20 +294,7 @@ def create_content_follow_hotel_id(hotel_id):
     except Exception as e:
         logging.error(f"Error processing Hotel ID {hotel_id}: {str(e)}", exc_info=True)
         return []
-
-
-def parse_json_field(value, default):
-    """
-    Safely parse a JSON field from a string.
-    If parsing fails, return the default value.
-    """
-    try:
-        return ast.literal_eval(value)
-    except (ValueError, SyntaxError):
-        return default
-
-
-
+    
 
 def get_all_hotel_id_list_with_supplier(supplier, engine, table):
     try:
@@ -376,7 +365,7 @@ def save_json_files_follow_systemId(folder_path, tracking_file_path):
     if not os.path.exists(folder_path):
         os.makedirs(folder_path)
 
-    systemid_list = get_all_hotel_id_list_with_supplier(supplier_name='Ratehawk', engine=local_engine_L1, table=innova_hotels_main)
+    systemid_list = get_all_hotel_id_list_with_supplier(supplier='Ratehawk', engine=local_engine_L1, table=innova_hotels_main)
     print(f"Total System IDs fetched: {len(systemid_list)}")
 
     initialize_tracking_file(tracking_file_path, systemid_list)
@@ -397,6 +386,8 @@ def save_json_files_follow_systemId(folder_path, tracking_file_path):
                 continue
 
             data_list = create_content_follow_hotel_id(systemid)
+
+            # print(data_list)
             if not data_list:
                 print(f"Data not found for Hotel ID: {systemid}. Skipping...")
                 continue
@@ -426,6 +417,8 @@ save_json_files_follow_systemId(folder_path, tracking_file_path)
 
 
 
+# da = create_content_follow_hotel_id(hotel_id='franziskushohe')
+# print(da)
 
 
 
